@@ -1,6 +1,7 @@
-runtime: python39
+runtime: python
 env: flex
+
 entrypoint: gunicorn -b :$PORT main:app
-python_version: 3.9
-env_variables:
-  ...
+
+runtime_config:
+  python_version: 3.9

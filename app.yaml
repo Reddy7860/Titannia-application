@@ -1,6 +1,6 @@
 runtime: python39
-
-handlers:
-- url: /.*
-  script: auto
-
+env: flex
+entrypoint: gunicorn -b :$PORT main:app
+python_version: 3.9
+env_variables:
+  ...

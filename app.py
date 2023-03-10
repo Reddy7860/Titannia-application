@@ -1,9 +1,21 @@
 from flask import render_template,flash,request, url_for, redirect,Flask,redirect, Response, session,jsonify
 from datetime import datetime
 import pandas as pd
+import numpy as np
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 import os
+from pytz import timezone 
+from datetime import timedelta, date
+from google.oauth2 import service_account
+import pandas_gbq
+import plotly
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.subplots import make_subplots
+from get_vix_data import get_vix_data
+from get_global_market import get_global_market
+from options_greek import long_call,long_put,short_call,short_put,binary_call,binary_put,bull_spread,bear_spread,straddle,risk_reversal,strangle,butterfly_spread,strip
 
 app = Flask(__name__)
 
@@ -26,6 +38,16 @@ db = mongo_db1.db
 
 mongo_db2 = PyMongo(app, uri=app.config["MONGO_URI_DB2"])
 db2 = mongo_db2.db
+
+# Set the path to the JSON key file
+key_path = 'static/ferrous-module-376519-7e08f583402d.json'
+# Load the credentials from the JSON key file
+credentials = service_account.Credentials.from_service_account_file(key_path)
+# Set the environment variable for the credentials
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
+
+
+
 
 # Create a list of users for demo purposes
 users = [
@@ -929,7 +951,9 @@ def update_global_data():
     # figure1 = get_s_and_p_market()
     # figure2 = get_global_market()
 
-    last_30_days_data = get_global_market(current_start_date,current_end_date)
+    last_30_days_data = get_global_market(current_start_date,current_end_date,db)
+
+    print(last_30_days_data.head())
 
     dow_jones_data = last_30_days_data[last_30_days_data['Index'] == "Dow Jones"]
     nasdaq_data = last_30_days_data[last_30_days_data['Index'] == "Nasdaq"]

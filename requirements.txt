@@ -3,6 +3,13 @@ gunicorn
 pymongo==4.0.1
 python-dotenv==0.19.1
 pandas
+numpy
 Flask-PyMongo
 pymongo[srv]
 dnspython
+pandas-gbq
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+plotly
+yfinance

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ferrous-module-376519",
+  "private_key_id": "7e08f583402de4337101ffa5869cd9a8b384501d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDPoO77zfeYD2zy\nDo7porNkBIDM7cQcd1rwqGU28w2TAoBqJo8HdBeIJ/2IPQeI74IOCdkFXMxb5KwZ\n9Wy13jF8RzXGQdI+gY5lhCHg9LRoUQWdCdK6XsuPJ90w+OMdtqVEuIfumvnEU4WY\n0NVigj8ayR9HuOgRrclxtrnhlVRY5EAb27VOUbrza3S13nvQjKRIn8YNxh8Ib63j\nB2DJbuYw15DGHK+9gLE71T/6sRT5OkB/GfweTEqKJMCmOkyaNAOnj+kPi3TZIg11\nBKpOlnFSA2n1h55UjfxrK1DM0MYCbFI8Kn8Y8DOvznQscqP4cjgnT3ybE9iChHeD\nQ1Gmw5pzAgMBAAECggEAO6PFoeza5wHfUHRgFrpWfy9P9A2EHI0oQSKN2EfeqVC5\npEQpJ4HwVHrwN5cYN/xcRj4L6Z9rUCYSTW6S6HbHjiRCTQ2RH8VFKuHWfXCs9Z34\nV9B/iGs8W4We4rdLPbi+Jkw/N4mqnvtCz8+Ey8QP7ljBNG/nsVRTHefX4vVrAhEh\nvrwRvJUqm+evsHTEu5DxqAbk8gsGAnlgDCu+5MCPO8A4jyMeW9wC3e+GcIfWtWPx\n/4RSsA18uO1TJ+vhkdkJT3R37f7TS6icz3R+tGMI0RmUQ/cP1sKGuC9SInPKAJs+\nyoTfd1ATbEZyRSedj8Uyv3D97tEGmq/CNpOjjqFc0QKBgQDyhNjnwn7w6qBpippv\n1iMz9GG5Z+E32Zq5MqkItZOYnmLZWhe8R6iyctxPhLpwvsuJLb0yy0vfUv6BquIK\nFwtAnEpR9I04kkSnAU8r4TB/ftD3grVWS95LRtzwUomnCXayDm13OVx0cYmKs0KO\nKFHVOdilYYnq2OdgOe1/P466yQKBgQDbK5T1OBGglXTfZ9tANQcWlw9g04hZFLP8\nIjw5M4JB4uonF3A2cvEvKD3CJ9jssaHC3uHZaBrUvNAOCTAfZ1BfmhdEXPp95hGg\nmaHa1W8DKWwrafNQ3LBTGHKEvEnAxGxktrYi5FRTP9I9BF/gL+g3PTZBGFgmiYdf\n9GJ7DbMNWwKBgQCO9RCHTXdWvHfivvlag3gs4BnbGQkByxwRn3NU1vQyOus6BImJ\nSxR+XIbRuQPOAiooqvWkQ4JuGpY8CWdFW2AergKBXQ8CEfa2G2d4Dj5waWj0/e+2\n9vIKnbMPVxgdhs6ZFzgf14hQe70ALbtF4S6b6oVyt5R9A28gogUFxYl1QQKBgB1e\nc7GAd+w62tRtCFZMRMzkJS1mayj0u0GYHNXVbykBDTt7yo+hS2x0SgJQcKMXEoQY\ndc86Qg4r1v1qgcZTg9OrxF5mzzI7uDT7IVM/soaL8HDI29AEIqSf7AiZapCoQZYl\nXbbDPgGB1dxTT72s7cMpMrH6XyWa3Echamju5wVtAoGBAKCFip3D3lIgoKbiQ6jG\nKRUTWf4QlRmBx5T/8UeScP+1smbQ0T6zBOgIlrI6ndVuunzlceKi1fSDIAkitSzy\n4xNn5xToPrIoA/jaz+IHJbsAZhirKYsevrX+PbSkMt2HAgL0EBUPgJq6KVRWGgis\naJ5gbBTx/P4y4pSM0sGaMONj\n-----END PRIVATE KEY-----\n",
+  "client_email": "titania-testing@ferrous-module-376519.iam.gserviceaccount.com",
+  "client_id": "116804164746001485924",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/titania-testing%40ferrous-module-376519.iam.gserviceaccount.com"
+}

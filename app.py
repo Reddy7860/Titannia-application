@@ -1,14 +1,31 @@
 from flask import render_template,flash,request, url_for, redirect,Flask,redirect, Response, session,jsonify
 from datetime import datetime
 import pandas as pd
-import pymongo
+from flask_pymongo import PyMongo
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Set secret key for session management
 app.secret_key = "mysecretkey"
+# Set up MongoDB URIs
+mongo_user = os.environ.get('MONGO_USER')
+mongo_password = os.environ.get('MONGO_PASSWORD')
+mongo_uri_db1 = os.environ.get('MONGO_URI_DB1')
+mongo_uri_db2 = os.environ.get('MONGO_URI_DB2')
 
+app.config["MONGO_URI_DB1"] = f"mongodb+srv://{mongo_user}:{mongo_password}@{mongo_uri_db1}"
+app.config["MONGO_URI_DB2"] = f"mongodb+srv://{mongo_user}:{mongo_password}@{mongo_uri_db2}"
+
+mongo_db1 = PyMongo(app, uri=app.config["MONGO_URI_DB1"])
+db = mongo_db1.db
+
+mongo_db2 = PyMongo(app, uri=app.config["MONGO_URI_DB2"])
+db2 = mongo_db2.db
 
 # Create a list of users for demo purposes
 users = [

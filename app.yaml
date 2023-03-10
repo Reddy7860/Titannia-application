@@ -12,3 +12,10 @@ resources:
   cpu: 1
   memory_gb: 0.5
   disk_size_gb: 10
+
+
+env_variables:
+  MONGO_USER: Titania
+  MONGO_PASSWORD: Mahadev
+  MONGO_URI_DB1: cluster0.zq3w2cn.mongodb.net/titania_trading
+  MONGO_URI_DB2: cluster0.zq3w2cn.mongodb.net/United_States_Titania_Trading

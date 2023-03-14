@@ -15,6 +15,7 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 from get_vix_data import get_vix_data
 from get_global_market import get_global_market
+from get_client_orders import get_display_data
 from options_greek import long_call,long_put,short_call,short_put,binary_call,binary_put,bull_spread,bear_spread,straddle,risk_reversal,strangle,butterfly_spread,strip
 
 app = Flask(__name__)
@@ -153,6 +154,31 @@ def company_overview():
 def orders_preview():
     current_date = datetime.now(timezone("Asia/Kolkata")).strftime("%Y-%m-%d")
     return render_template('client_data_update.html', current_date=current_date)
+
+@app.route("/get_data", methods=["POST"])
+def get_data():
+    client_id = request.get_json()["selectedClient"]
+    date_selected = request.get_json()["selectedDate"]
+
+    print(client_id)
+    print(date_selected)
+
+    if date_selected == "":
+    	date_selected = '2023-01-19'
+    print(date_selected)
+    if client_id != "All":
+    	final_position_data,final_open_data,final_stoploss_data,final_completed_orders,final_closed_positions = get_display_data(client_id,date_selected,db)
+    	# data = get_display_data(client_id,date_selected)
+
+    data = {"final_position_data": final_position_data.to_dict(),
+    		 "final_open_data": final_open_data.to_dict(),
+    		 "final_stoploss_data": final_stoploss_data.to_dict(),
+    		 "final_completed_orders": final_completed_orders.to_dict(),
+    		 "final_closed_positions": final_closed_positions.to_dict(),
+    		 }
+
+    print(data)
+    return jsonify(data)
 
 @app.route('/technical_preview')
 def technical_preview():

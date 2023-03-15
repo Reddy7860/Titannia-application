@@ -15,8 +15,12 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 from get_vix_data import get_vix_data
 from get_global_market import get_global_market
-from get_client_orders import get_display_data
+from get_combined_chart import get_combined_chart
+
 from options_greek import long_call,long_put,short_call,short_put,binary_call,binary_put,bull_spread,bear_spread,straddle,risk_reversal,strangle,butterfly_spread,strip
+import requests
+import json
+import plotly.express as px
 
 app = Flask(__name__)
 
@@ -154,31 +158,6 @@ def company_overview():
 def orders_preview():
     current_date = datetime.now(timezone("Asia/Kolkata")).strftime("%Y-%m-%d")
     return render_template('client_data_update.html', current_date=current_date)
-
-@app.route("/get_data", methods=["POST"])
-def get_data():
-    client_id = request.get_json()["selectedClient"]
-    date_selected = request.get_json()["selectedDate"]
-
-    print(client_id)
-    print(date_selected)
-
-    if date_selected == "":
-    	date_selected = '2023-01-19'
-    print(date_selected)
-    if client_id != "All":
-    	final_position_data,final_open_data,final_stoploss_data,final_completed_orders,final_closed_positions = get_display_data(client_id,date_selected,db)
-    	# data = get_display_data(client_id,date_selected)
-
-    data = {"final_position_data": final_position_data.to_dict(),
-    		 "final_open_data": final_open_data.to_dict(),
-    		 "final_stoploss_data": final_stoploss_data.to_dict(),
-    		 "final_completed_orders": final_completed_orders.to_dict(),
-    		 "final_closed_positions": final_closed_positions.to_dict(),
-    		 }
-
-    print(data)
-    return jsonify(data)
 
 @app.route('/technical_preview')
 def technical_preview():
@@ -328,7 +307,7 @@ def get_ai_trading():
     print(selectedLine)
     
 
-    figure = get_combined_chart(selectedOption,selectedDate,selectedLine)
+    figure = get_combined_chart(selectedOption,selectedDate,selectedLine,db)
 
 	# debugger;
 
@@ -429,7 +408,7 @@ def open_interest():
        'put_identifier', 'put_impliedvolatility', 'put_lastprice',  'put_openinterest', 'put_pchange', 'put_pchangeinopeninterest',
         'put_totalbuyquantity', 'put_totalsellquantity', 'put_totaltradedvolume', 'put_underlying', 'put_underlyingvalue','put_type','put_time']
 
-    print("Current expiry = 16-Feb-2023 and needs to be changed")
+    print("Current expiry = 16-Mar-2023 and needs to be changed")
 
     today_now = datetime.now(timezone("Asia/Kolkata")) 
 
@@ -453,9 +432,12 @@ def open_interest():
     print("Expiry date")
     print(expiry_date)
 
-    latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
-    latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
-    
+    # latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    # latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+
+    # print(latest_ce)
+    latest_ce = ce.loc[ce['call_expirydate'] == '16-Mar-2023',]
+    latest_pe = pe.loc[pe['put_expirydate'] == '16-Mar-2023',]
     # latest_pe = pe.loc[pe['put_expirydate'] == '16-Feb-2023',]
 
     merged_data = pd.merge(latest_ce, latest_pe,left_on = ['call_strikeprice','call_expirydate'],right_on = ['put_strikeprice','put_expirydate'] , how='left')
@@ -541,6 +523,20 @@ def open_interest():
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     header="OI for Nifty"
     return render_template('open_interest.html', graphJSON=graphJSON)
+
+
+def total_loss_at_strike(chain, expiry_price):
+    """Calculate loss at strike price"""
+    # All call options with strike price below the expiry price will result in loss for option writers
+    in_money_calls = chain[chain['call_strikeprice'] < expiry_price][["call_openinterest", "call_strikeprice"]]
+    in_money_calls["call_loss"] = (expiry_price - in_money_calls['call_strikeprice'])*in_money_calls["call_openinterest"]
+
+    # All put options with strike price above the expiry price will result in loss for option writers
+    in_money_puts = chain[chain['put_strikeprice'] > expiry_price][["put_openinterest", "put_strikeprice"]]
+    in_money_puts["put_loss"] = (in_money_puts['put_strikeprice'] - expiry_price)*in_money_puts["put_openinterest"]
+    total_loss = in_money_calls["call_loss"].sum() + in_money_puts["put_loss"].sum()
+
+    return total_loss
 
 @app.route("/max_pain",methods=["GET"])
 def max_pain():
@@ -628,8 +624,11 @@ def max_pain():
     print("Expiry date")
     print(expiry_date)
 
-    latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
-    latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    # latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    # latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+
+    latest_ce = ce.loc[ce['call_expirydate'] == '16-Mar-2023',]
+    latest_pe = pe.loc[pe['put_expirydate'] == '16-Mar-2023',]
 
     # latest_ce = ce.loc[ce['call_expirydate'] == '16-Feb-2023',]
     # latest_pe = pe.loc[pe['put_expirydate'] == '16-Feb-2023',]

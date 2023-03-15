@@ -1,13 +1,10 @@
-import yfinance as yf
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
-# from application import db
 from datetime import datetime,timedelta
 import json
 
 def get_combined_chart(selectedOption,selectedDate,selectedLine,db):
-
 
     Stocks_data_5_minutes = db["Stocks_data_5_minutes"].find({'Stock':str(selectedOption),'instrumenttype':"FUTIDX"}).sort([('Datetime', 1)])
     Stocks_data_5_minutes =  pd.DataFrame(list(Stocks_data_5_minutes))
@@ -172,125 +169,5 @@ def get_combined_chart(selectedOption,selectedDate,selectedLine,db):
     figure = go.Figure(data=data, layout=layout)
 
     return figure
-    # trace1 = go.Candlestick(
-    #     x=modified_stocks_5_data['Datetime'],
-    #                 open=modified_stocks_5_data['Open'], high=modified_stocks_5_data['High'],
-    #                 low=modified_stocks_5_data['Low'], close=modified_stocks_5_data['Close']
-    # )
 
-    # trace2 = go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['arima_pivot_point'],
-    #         name='Arima Pivot Point'
-    #     )
-
-    # data = [trace1,trace2]
-
-    # fig = dict(data=data)
-
-    # return go.Figure(fig).to_dict()
-
-
-    # fig = go.Figure(data=[go.Candlestick(x=modified_stocks_5_data['Datetime'],
-    #                 open=modified_stocks_5_data['Open'], high=modified_stocks_5_data['High'],
-    #                 low=modified_stocks_5_data['Low'], close=modified_stocks_5_data['Close'])
-    #                      ])
-
-    # fig.add_trace(
-    #     go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['arima_pivot_point'],
-    #         name='Arima Pivot Point'
-    #     ))
-
-    # fig.add_trace(
-    #     go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['arima_resistance_1'],
-    #         name = 'Arima Resistance'
-    #     ))
-
-    # fig.add_trace(
-    #     go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['arima_support_1'],
-    #         name = 'Arima Support'
-    #     ))
-
-    # fig.add_trace(
-    #     go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['oi_low'],
-    #         name = 'Highest OI Low'
-    #     ))
-
-    # fig.add_trace(
-    #     go.Scatter(mode = "lines",
-    #         x=modified_stocks_5_data['Datetime'],
-    #         y=modified_stocks_5_data['oi_high'],
-    #         name = 'Highest OI High'
-    #     ))
-
-    # # fig.add_trace(
-    # #     go.Scatter(
-    # #         x=modified_stocks_5_data['Datetime'],
-    # #         y=modified_stocks_5_data["Strategy_x"],
-    # #         mode="markers+text",
-    # #         marker=dict(symbol='triangle-down-open', size = 12),
-    # # #         text = 'important',
-    # # #         textposition = 'middle right'
-
-    # #     )
-    # # )
-
-    # fig.add_trace(
-    #     go.Scatter(
-    #         x=algo_orders_place_data['Datetime'],
-    #         y=algo_orders_place_data['Value'],
-    #         mode="markers",
-    #         marker=dict(symbol='star-triangle-down'),
-    #         marker_size=12,
-    #         text = "Datetime : "+ algo_orders_place_data['Datetime'].astype(str) + "<br>Value: " + algo_orders_place_data['Value'].astype(str) + "<br>Buy Probability: " + algo_orders_place_data['buy_probability'].astype(str)+ "<br>Sell Probability: " + algo_orders_place_data['sell_probability'].astype(str)+ "<br>Current Script: " + algo_orders_place_data['current_script'].astype(str)+ "<br>Strike Buy Price : " + algo_orders_place_data['Strike_Buy_Price'].astype(str)  ,
-    #         hoverinfo='text'
-
-    #     )
-    # )
-
-    # # fig.layout = dict(xaxis=dict(type="category"))
-
-    # # fig.update_layout(xaxis_rangeslider_visible=False)
-    # # fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])]) 
-
-    # # fig.update_layout(
-    # #     autosize=False,
-    # #     width=1000,
-    # #     height=800,)
-
-    # # data = [fig]
-
-    # # graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
-
-    # # return graphJSON
-
-    # # global_stocks_data = db["global_markets"].find({'index':'S & P 500','Date':{"$gte": "2022-12-01"}}).sort([('Date', 1)])
-    # # global_stocks_data =  pd.DataFrame(list(global_stocks_data))
-
-    # # sid = "S & P 500"
-
-    # # # make sure everything is json serializable, plus use  ISO 8601 for dates
-    # # trace = go.Candlestick(
-    # #     x=global_stocks_data['Date'].tolist(),
-    # #     open=global_stocks_data['Open'].tolist(),
-    # #     high=global_stocks_data['High'].tolist(),
-    # #     low=global_stocks_data['Low'].tolist(),
-    # #     close=global_stocks_data['Close'].tolist(),
-    # #     name="sid",
-    # # )
-
-    # # data = [trace]
-
-    
-    # # fig = dict(data=data, layout=layout)
-
-    # # return go.Figure(fig).to_dict()
 

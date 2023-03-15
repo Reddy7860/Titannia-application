@@ -1,0 +1,193 @@
+{% extends "header.html" %}
+
+{% block title %}Company Overview - TED{% endblock %}
+
+{% block content %}
+
+{% include "navbar.html" %}
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+
+    <style>
+        /* styling for the table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+
+    </style>
+
+        <form id="date-form">
+            <select name="dropdown" id="index-dropdown">
+                <option value="All">All</option>
+                <option value="Nifty">Nifty</option>
+                <option value="BankNifty">Bank Nifty</option>
+            </select>
+            <select name="interval-dropdown" id="interval-dropdown">
+                <option value="1min">One Minute</option>
+                <option value="5min" selected>Five Minutes</option>
+                <option value="15min">Fifteen Minutes</option>
+                <option value="30min">Thirty Minutes</option>
+                <option value="60min">One Hour</option>
+                <option value="1day">One Day</option>
+            </select>
+
+            <input type="button" value="Update Chart" id="update-button">
+        </form>
+
+        <table id="candle-stick-data-table">
+    <thead>
+        <tr>
+
+            <th>Stock</th>
+              <th>Date Time</th>
+              <th>Open</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Close</th>
+              <th>Volume</th>
+              <th>buy_probability</th>
+              <th>sell_probability</th>
+              <th>SMA_Call</th>
+              <th>RSI_Call</th>
+              <th>MACD_Call</th>
+
+              <th>Pivot_Call</th>
+              <th>PCR_Call</th>
+              <th>BB_Call</th>
+              <th>VWAP_Call</th>
+              <th>SuperTrend_Call</th>
+            <!-- <th>Action</th> -->
+        </tr>
+    </thead>
+    <tbody id="candle-stick-data-table-body">
+    </tbody>
+    </table>
+
+    <script>
+        // window.onload = function() {
+        //     document.getElementById("index-dropdown").value = '{{ index_value }}';
+        //     document.getElementById("interval-dropdown").value = '{{ interval_value }}';
+        // }
+
+        $(document).ready(function() {
+            $("#update-button").click(function() {
+                refreshTable()
+            })
+        });
+
+        function refreshTable() {
+
+        debugger;
+        // Get the selected data
+        // var selectedClient = document.getElementById("data-select").value;
+        var selected_value = document.getElementById("index-dropdown").value;
+        var interval_value = document.getElementById("interval-dropdown").value;
+
+        // Make an HTTP request to the Flask app to get the selected data
+        fetch('/get_technical_data', {
+            method: 'POST',
+            body: JSON.stringify({"selected_value":selected_value,"interval_value":interval_value}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            debugger;
+            console.log(data)
+
+            // Clear the existing data in the table
+            $("#candle-stick-data-table tbody").empty();
+
+            if (typeof data["paper_data"]['technical_indicators']['Stock'] !== 'undefined') {
+
+                if (Object.keys(data["paper_data"]['technical_indicators']['Stock']).length !== 0) {
+
+                    // Create table rows with the new data
+                    var tableRows = '';
+                    for (var i = 0; i < Object.keys(data["paper_data"]['technical_indicators']['Stock']).length; i++) {
+                        tableRows += '<tr>';
+
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Stock'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Datetime'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Open'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['High'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Low'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Close'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Volume'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['buy_probability'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['sell_probability'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['SMA_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['RSI_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['MACD_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['Pivot_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['PCR_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['BB_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['VWAP_Call'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['technical_indicators']['SuperTrend_Call'][i] + '</td>';
+                        tableRows += '</tr>';
+                    }
+
+                    // Append the new rows to the table
+                    $("#candle-stick-data-table tbody").append(tableRows);
+
+                    // Initialize pagination, sorting, and scrollable features
+                    $('#candle-stick-data-table').DataTable({
+                        "paging": true,
+                        "ordering": true,
+                        "scrollY": "400px",
+                        "scrollCollapse": true,
+                        "searching": false,
+                        "lengthChange": false,
+                        "info": false,
+                        "language": {
+                            "emptyTable": "No records found"
+                        }
+                    });
+
+                } else {
+                    // Display a "No records found" message
+                    var tableBody = document.getElementById("candle-stick-data-table-body");
+                    var row = document.createElement("tr");
+                    var cell = document.createElement("td");
+                    cell.colSpan = 14;
+                    cell.innerHTML = "No records found";
+                    row.appendChild(cell);
+                    row.style.textAlign = "center";
+                    tableBody.appendChild(row);
+                }
+
+            } else {
+                // Display a "No records found" message
+                 var tableBody = document.getElementById("candle-stick-data-table-body");
+                    var row = document.createElement("tr");
+                    var cell = document.createElement("td");
+                    cell.colSpan = 14;
+                    cell.innerHTML = "No records found";
+                    row.appendChild(cell);
+                    row.style.textAlign = "center";
+                    tableBody.appendChild(row);
+
+                }
+
+
+        });
+    }
+    </script>
+ {% endblock %}
+
+  {% block footer %}{% endblock %}

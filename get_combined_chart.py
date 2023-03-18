@@ -168,6 +168,17 @@ def get_combined_chart(selectedOption,selectedDate,selectedLine,db):
                             )}
     figure = go.Figure(data=data, layout=layout)
 
-    return figure
+
+    # Bar chart for volume
+    bar_chart_data = go.Bar(x=modified_stocks_5_data['Datetime'], y=modified_stocks_5_data['Volume'], name='Volume')
+
+    # Pie chart for buy and sell probabilities
+    buy_sell_probabilities = algo_orders_place_data[['buy_probability', 'sell_probability']].mean()
+    pie_chart_data = go.Pie(labels=['Buy Probability', 'Sell Probability'], values=buy_sell_probabilities, hole=0.4)
+
+    # DataFrame output
+    output_data = modified_stocks_5_data[['Datetime', 'Open', 'High', 'Low', 'Close', 'Volume']]
+
+    return figure,bar_chart_data, pie_chart_data, output_data
 
 

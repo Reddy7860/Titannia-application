@@ -1,0 +1,27 @@
+{% extends "header.html" %}
+
+{% block title %}Register - TED{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="form-wrapper">
+    <form action="{{ url_for('register') }}" method="post">
+      <h1>Create an account</h1>
+      <div class="form-group">
+        <input type="email" name="email" placeholder="Email Address">
+      </div>
+      <div class="form-group">
+        <input type="tel" name="mobile" placeholder="Mobile Number">
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" placeholder="Password">
+      </div>
+      <div class="form-group">
+        <button type="submit">Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% include "footer.html" %}
+{% endblock %}

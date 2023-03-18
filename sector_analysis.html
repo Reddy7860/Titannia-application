@@ -1,0 +1,84 @@
+{% extends "header.html" %}
+
+{% block title %}Company Overview - TED{% endblock %}
+
+{% block content %}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>stock-graph</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <!-- <script src="hhttps://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+
+    <style type="text/css">
+            .header{
+                text-align: center;
+                background-color: rgb(136, 185, 229);
+                height: 70px;
+                line-height: 70px;
+            }
+            .chart{
+                margin-top: 30px;
+                text-align: center;
+            }
+        </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+    <div class="container-fluid">
+
+        <form id="date-form">
+            Start Date: <input type="date" id="start-date" name="start_date">
+            End Date: <input type="date" id="end-date" name="end_date">
+            <!-- <input type="button" value="Update Chart" onclick="refreshChart()"> -->
+            <input type="button" value="Update Chart" id="update-button">
+        </form>
+
+        <h4 align="center">Sector Performance</h4>
+
+        <div id="sector_plot"></div>
+
+
+    </div>
+</body>
+
+
+<script>
+    window.onload = function() {
+            document.getElementById("start-date").value = '{{ start_date }}';
+            document.getElementById("end-date").value = '{{ end_date }}';
+        }
+
+    $(document).ready(function() {
+        $("#update-button").click(function() {
+            var current_start_date = $("#start-date").val();
+            var current_end_date = $("#end-date").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/get_sector_analysis",
+                contentType: "application/json",
+                data: JSON.stringify({ current_start_date: current_start_date, current_end_date: current_end_date }),
+                success: function(data) {
+                    // debugger;
+                    $("#sector_plot").html(data.sector_plot);
+                }
+            });
+        });
+    });
+
+
+</script>
+
+
+ {% endblock %}

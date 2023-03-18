@@ -1,0 +1,474 @@
+{% extends "header.html" %}
+
+{% block title %}Company Overview - TED{% endblock %}
+
+{% block content %}
+
+<html>
+  <head>
+    <title>Data Table</title>
+  </head>
+  <body>
+    {% include "navbar.html" %}
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <script src="https://smartapi.angelbroking.com/common/v1.js"></script>
+
+    <style>
+        /* styling for the table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+
+    </style>
+
+    <div>
+
+        <form id="date-form">
+        <input type="date" id="start-date">
+
+        <input type="button" value="Update Chart" id="update-button">
+    </form>
+      <!-- <form>
+        
+        <input type="date" id="start-date" onchange="refreshTable()">
+      </form> -->
+    </div>
+    <div>
+    <h2> Candle Stick Signals </h2>
+    </div>
+    
+    <table id="candle-stick-data-table">
+    <thead>
+        <tr>
+            <th>Datetime</th>
+            <th>Strategy</th>
+            <th>Stock</th>
+            <th>Current Script</th>
+            <th>Signal</th>
+            <th>Value</th>
+            <th>Buy Probability</th>
+            <th>Sell Probability</th>
+            <th>Target</th>
+            <th>Stop Loss</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="candle-stick-data-table-body">
+        <!-- Data rows will be added here -->
+    </tbody>
+    </table>
+    <br/>
+    <br/>
+    <div>
+    <h2> Final Open Data </h2>
+    </div>
+    <table id="final_open_data-data-table">
+    <thead>
+        <tr>
+            <th>Strategy</th>
+            <th>Stock</th>
+            <th>Datetime</th>
+            <th>Buy Probability</th>
+            <th>Sell Probability</th>
+            <th>Strike Buy Price</th>
+            <th>Current Script</th>
+            <th>Token</th>
+            <th>Buy Timestamp</th>
+        </tr>
+    </thead>
+    <tbody id="final_open_data-table-body">
+        <!-- Data rows will be added here -->
+    </tbody>
+    </table>
+
+    <div>
+    <h2> Final Completed Data </h2>
+    </div>
+    <table id="final_completed_orders-data-table">
+    <thead>
+        <tr>
+            <th>Strategy</th>
+            <th>Stock</th>
+            <th>Datetime</th>
+            <th>Buy Probability</th>
+            <th>Sell Probability</th>
+            <th>Current Script</th>
+            <th>PNL</th>
+        </tr>
+    </thead>
+    <tbody id="final_completed_orders-table-body">
+        <!-- Data rows will be added here -->
+    </tbody>
+    </table>
+    <br/>
+    <br/>
+
+    <div>
+    <h2> Target Placed Data </h2>
+    </div>
+    <table id="final_target_orders-data-table">
+    <thead>
+        <tr>
+            <th>Strategy</th>
+            <th>Stock</th>
+            <th>Datetime</th>
+            <th>Buy Probability</th>
+            <th>Sell Probability</th>
+            <th>Strike Buy Price</th>
+            <th>Current Script</th>
+            <th>Token</th>
+            <th>Buy Timestamp</th>
+        </tr>
+    </thead>
+    <tbody id="final_target_orders-table-body">
+        <!-- Data rows will be added here -->
+    </tbody>
+    </table>
+    <br/>
+    <br/>
+
+    <div>
+    <h2> Stoploss Placed Data </h2>
+    </div>
+    <table id="final_stoploss_orders-data-table">
+    <thead>
+        <tr>
+            <th>Strategy</th>
+            <th>Stock</th>
+            <th>Datetime</th>
+            <th>Buy Probability</th>
+            <th>Sell Probability</th>
+            <th>Strike Buy Price</th>
+            <th>Current Script</th>
+            <th>Token</th>
+            <th>Buy Timestamp</th>
+        </tr>
+    </thead>
+    <tbody id="final_stoploss_orders-table-body">
+        <!-- Data rows will be added here -->
+    </tbody>
+    </table>
+    <br/>
+    <br/>
+    
+    <script>
+        window.onload = function() {
+            document.getElementById("start-date").value = '{{ current_date }}';
+        }
+
+        $(document).ready(function() {
+            $("#update-button").click(function() {
+                refreshTable()
+            })
+        });
+
+    function refreshTable() {
+        // Get the selected data
+        // var selectedClient = document.getElementById("data-select").value;
+        var selectedDate = document.getElementById("start-date").value;
+
+        // Make an HTTP request to the Flask app to get the selected data
+        fetch('/get_candle_stick_data', {
+            method: 'POST',
+            body: JSON.stringify({"selectedDate":selectedDate}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            debugger;
+            console.log(data)
+            // Clear the existing data in the table
+            var table1 = document.getElementById("candle-stick-data-table");
+            var table2 = document.getElementById("final_open_data-data-table");
+            var table3 = document.getElementById("final_completed_orders-data-table");
+            var table4 = document.getElementById("final_target_orders-data-table");
+            var table5 = document.getElementById("final_stoploss_orders-data-table");
+
+            while (table1.rows.length > 1) {
+                table1.deleteRow(1);
+            }
+            while (table2.rows.length > 1) {
+                table2.deleteRow(1);
+            }
+            while (table3.rows.length > 1) {
+                table3.deleteRow(1);
+            }
+            while (table4.rows.length > 1) {
+                table4.deleteRow(1);
+            }
+            while (table5.rows.length > 1) {
+                table5.deleteRow(1);
+            }
+
+            if (typeof data["data"]['candle_stick_data'] !== 'undefined') {
+
+                if(Object.keys(data["data"]['candle_stick_data']).length !== 0){
+                    // Add the new data to the table
+                    for (var i = 0; i < Object.keys(data["data"]['candle_stick_data']).length; i++) {
+                        var row = table1.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
+                        var cell6 = row.insertCell(5);
+                        var cell7 = row.insertCell(6);
+                        var cell8 = row.insertCell(7);
+                        var cell9 = row.insertCell(8);
+                        var cell10 = row.insertCell(9);
+                        var cell11 = row.insertCell(10);
+
+                        cell1.innerHTML = data["data"]['candle_stick_data'][i]['Datetime'];
+                        cell2.innerHTML = data["data"]['candle_stick_data'][i]['Strategy'];
+                        cell3.innerHTML = data["data"]['candle_stick_data'][i]['Stock'];
+                        cell4.innerHTML = data["data"]['candle_stick_data'][i]['current_script'];
+                        cell5.innerHTML = data["data"]['candle_stick_data'][i]['Signal'];
+                        cell6.innerHTML = data["data"]['candle_stick_data'][i]['Value'];
+                        cell7.innerHTML = data["data"]['candle_stick_data'][i]['buy_probability'];
+                        cell8.innerHTML = data["data"]['candle_stick_data'][i]['sell_probability'];
+                        cell9.innerHTML = data["data"]['candle_stick_data'][i]['Target'];
+                        cell10.innerHTML = data["data"]['candle_stick_data'][i]['StopLoss'];
+                        cell11.innerHTML = data["data"]['candle_stick_data'][i]['Link'];
+                    }
+                }else{
+                    var tableBody = document.getElementById("candle-stick-data-table-body");
+                      var row = document.createElement("tr");
+                      var cell = document.createElement("td");
+                      cell.colSpan = 9;
+                      cell.innerHTML = "No records found";
+                      row.appendChild(cell);
+                      row.style.textAlign = "center";
+                      tableBody.appendChild(row);
+                }
+                
+            }else{
+                  var tableBody = document.getElementById("candle-stick-data-table-body");
+                  var row = document.createElement("tr");
+                  var cell = document.createElement("td");
+                  cell.colSpan = 9;
+                  cell.innerHTML = "No records found";
+                  row.appendChild(cell);
+                  row.style.textAlign = "center";
+                  tableBody.appendChild(row);
+            }
+
+
+            if (typeof data["paper_data"]['completed_data']!== 'undefined') {
+
+                if(Object.keys(data["paper_data"]['completed_data']).length !== 0){
+                    // Add the new data to the table
+                    for (var i = 0; i < Object.keys(data["paper_data"]['completed_data']).length; i++) {
+                        var row = table3.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
+                        var cell6 = row.insertCell(5);
+                        var cell7 = row.insertCell(6);
+
+                        
+                        cell1.innerHTML = data["paper_data"]['completed_data'][i]['Strategy'];
+                        cell2.innerHTML = data["paper_data"]['completed_data'][i]['Stock'];
+                        cell3.innerHTML = data["paper_data"]['completed_data'][i]['Datetime'];
+                        cell4.innerHTML = data["paper_data"]['completed_data'][i]['buy_probability'];
+                        cell5.innerHTML = data["paper_data"]['completed_data'][i]['sell_probability'];
+                        cell6.innerHTML = data["paper_data"]['completed_data'][i]['current_script'];
+                        cell7.innerHTML = data["paper_data"]['completed_data'][i]['PNL'];
+                    }
+                }else{
+                    var tableBody = document.getElementById("final_completed_orders-table-body");
+                      var row = document.createElement("tr");
+                      var cell = document.createElement("td");
+                      cell.colSpan = 7;
+                      cell.innerHTML = "No records found";
+                      row.appendChild(cell);
+                      row.style.textAlign = "center";
+                      tableBody.appendChild(row);
+                }
+                
+            }else{
+                  var tableBody = document.getElementById("final_completed_orders-table-body");
+                  var row = document.createElement("tr");
+                  var cell = document.createElement("td");
+                  cell.colSpan = 7;
+                  cell.innerHTML = "No records found";
+                  row.appendChild(cell);
+                  row.style.textAlign = "center";
+                  tableBody.appendChild(row);
+            }
+
+
+
+            if (typeof data['paper_data']['open_data'] !== 'undefined') {
+
+                if(Object.keys(data['paper_data']['open_data']).length !== 0){
+                    // Add the new data to the table
+                    for (var i = 0; i < Object.keys(data['paper_data']['open_data']).length; i++) {
+                        var row = table2.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
+                        var cell6 = row.insertCell(5);
+                        var cell7 = row.insertCell(6);
+                        var cell8 = row.insertCell(7);
+                        var cell9 = row.insertCell(8);
+
+                        
+
+                        cell1.innerHTML = data['paper_data']['open_data'][i]['Strategy'];
+                        cell2.innerHTML = data['paper_data']['open_data'][i]['Stock'];
+                        cell3.innerHTML = data['paper_data']['open_data'][i]['Datetime'];
+                        cell4.innerHTML = data['paper_data']['open_data'][i]['buy_probability'];
+                        cell5.innerHTML = data['paper_data']['open_data'][i]['sell_probability'];
+                        cell6.innerHTML = data['paper_data']['open_data'][i]['Strike_Buy_Price'];
+                        cell7.innerHTML = data['paper_data']['open_data'][i]['current_script'];
+                        cell8.innerHTML = data['paper_data']['open_data'][i]['token'];
+                        cell9.innerHTML = data['paper_data']['open_data'][i]['Buy_timestamp'];
+                    }
+                }else{
+                    var tableBody = document.getElementById("final_open_data-table-body");
+                      var row = document.createElement("tr");
+                      var cell = document.createElement("td");
+                      cell.colSpan = 9;
+                      cell.innerHTML = "No records found";
+                      row.appendChild(cell);
+                      row.style.textAlign = "center";
+                      tableBody.appendChild(row);
+                }
+                
+            }else{
+                  var tableBody = document.getElementById("final_open_data-table-body");
+                  var row = document.createElement("tr");
+                  var cell = document.createElement("td");
+                  cell.colSpan = 9;
+                  cell.innerHTML = "No records found";
+                  row.appendChild(cell);
+                  row.style.textAlign = "center";
+                  tableBody.appendChild(row);
+            }
+
+            if (typeof data['paper_data']['target_data'] !== 'undefined') {
+
+                if(Object.keys(data['paper_data']['target_data']).length !== 0){
+                    // Add the new data to the table
+                    for (var i = 0; i < Object.keys(data['paper_data']['target_data']).length; i++) {
+                        var row = table4.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
+                        var cell6 = row.insertCell(5);
+                        var cell7 = row.insertCell(6);
+                        var cell8 = row.insertCell(7);
+                        var cell9 = row.insertCell(8);
+
+                        
+
+                        cell1.innerHTML = data['paper_data']['target_data'][i]['Strategy'];
+                        cell2.innerHTML = data['paper_data']['target_data'][i]['Stock'];
+                        cell3.innerHTML = data['paper_data']['target_data'][i]['Datetime'];
+                        cell4.innerHTML = data['paper_data']['target_data'][i]['buy_probability'];
+                        cell5.innerHTML = data['paper_data']['target_data'][i]['sell_probability'];
+                        cell6.innerHTML = data['paper_data']['target_data'][i]['Strike_Buy_Price'];
+                        cell7.innerHTML = data['paper_data']['target_data'][i]['current_script'];
+                        cell8.innerHTML = data['paper_data']['target_data'][i]['token'];
+                        cell9.innerHTML = data['paper_data']['target_data'][i]['Buy_timestamp'];
+                    }
+                }else{
+                    var tableBody = document.getElementById("final_target_orders-table-body");
+                      var row = document.createElement("tr");
+                      var cell = document.createElement("td");
+                      cell.colSpan = 9;
+                      cell.innerHTML = "No records found";
+                      row.appendChild(cell);
+                      row.style.textAlign = "center";
+                      tableBody.appendChild(row);
+                }
+                
+            }else{
+                  var tableBody = document.getElementById("final_target_orders-table-body");
+                  var row = document.createElement("tr");
+                  var cell = document.createElement("td");
+                  cell.colSpan = 9;
+                  cell.innerHTML = "No records found";
+                  row.appendChild(cell);
+                  row.style.textAlign = "center";
+                  tableBody.appendChild(row);
+            }
+
+            if (typeof data['paper_data']['stoploss_data'] !== 'undefined') {
+
+                if(Object.keys(data['paper_data']['stoploss_data']).length !== 0){
+                    // Add the new data to the table
+                    for (var i = 0; i < Object.keys(data['paper_data']['stoploss_data']).length; i++) {
+                        var row = table5.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var cell5 = row.insertCell(4);
+                        var cell6 = row.insertCell(5);
+                        var cell7 = row.insertCell(6);
+                        var cell8 = row.insertCell(7);
+                        var cell9 = row.insertCell(8);
+
+                        
+
+                        cell1.innerHTML = data['paper_data']['stoploss_data'][i]['Strategy'];
+                        cell2.innerHTML = data['paper_data']['stoploss_data'][i]['Stock'];
+                        cell3.innerHTML = data['paper_data']['stoploss_data'][i]['Datetime'];
+                        cell4.innerHTML = data['paper_data']['stoploss_data'][i]['buy_probability'];
+                        cell5.innerHTML = data['paper_data']['stoploss_data'][i]['sell_probability'];
+                        cell6.innerHTML = data['paper_data']['stoploss_data'][i]['Strike_Buy_Price'];
+                        cell7.innerHTML = data['paper_data']['stoploss_data'][i]['current_script'];
+                        cell8.innerHTML = data['paper_data']['stoploss_data'][i]['token'];
+                        cell9.innerHTML = data['paper_data']['stoploss_data'][i]['Buy_timestamp'];
+                    }
+                }else{
+                    var tableBody = document.getElementById("final_stoploss_orders-table-body");
+                      var row = document.createElement("tr");
+                      var cell = document.createElement("td");
+                      cell.colSpan = 9;
+                      cell.innerHTML = "No records found";
+                      row.appendChild(cell);
+                      row.style.textAlign = "center";
+                      tableBody.appendChild(row);
+                }
+                
+            }else{
+                  var tableBody = document.getElementById("final_stoploss_orders-table-body");
+                  var row = document.createElement("tr");
+                  var cell = document.createElement("td");
+                  cell.colSpan = 9;
+                  cell.innerHTML = "No records found";
+                  row.appendChild(cell);
+                  row.style.textAlign = "center";
+                  tableBody.appendChild(row);
+            }
+        });
+    }
+    </script>
+  </body>
+</html>
+
+ {% endblock %}

@@ -1,0 +1,29 @@
+{% extends "header.html" %}
+
+{% block title %}Company Overview - TED{% endblock %}
+
+{% block content %}
+
+{% include "navbar.html" %}
+
+<script>
+    function apicall(url) {
+        $.ajax({
+            type:"GET", url:url, 
+            success: (data) => { 
+                console.log(data, $("#graph"));
+                Plotly.newPlot( $("#graph")[0], data );
+             }
+        });
+    }
+    window.onload = function () {
+        apicall("/supp_res");
+    }
+
+    setInterval(function() {apicall("/supp_res");},1000);
+
+</script>
+
+{% endblock %}
+
+ {% block footer %}{% endblock %}

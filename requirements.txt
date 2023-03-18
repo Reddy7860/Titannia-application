@@ -1,8 +1,10 @@
 Flask==2.0.1
 gunicorn
 pymongo==4.0.1
+grpcio>=1.51.3
+protobuf>=4.21.6
+pandas>=1.3.0
 python-dotenv==0.19.1
-pandas
 numpy
 Flask-PyMongo
 pymongo[srv]

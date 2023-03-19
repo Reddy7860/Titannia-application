@@ -25,6 +25,7 @@ from options_greek import long_call,long_put,short_call,short_put,binary_call,bi
 from nsepy import get_history
 import yfinance as yf
 from bs4 import BeautifulSoup
+from pandas.tseries.offsets import BDay
 
 app = Flask(__name__)
 
@@ -169,7 +170,7 @@ def get_infobox_data():
 
     if tabName == "#valuation":
 
-        money_control_data = pd.read_csv("/Users/apple/Downloads/Reddy_Stocks_Application/data/Money_Control_Tickers.csv")
+        money_control_data = pd.read_csv("Money_Control_Tickers.csv")
         row_number = np.where(money_control_data['Company'].str.contains(selected_stock))[0][0]
         money_control_url = "https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/" + money_control_data.iloc[row_number, 4]
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
@@ -660,81 +661,104 @@ def technical_preview():
 
 @app.route('/get_technical_data', methods=['POST'])
 def get_technical_data():
-	selected_value = request.get_json()["selected_value"]
-	interval_value = request.get_json()["interval_value"]
+    selected_value = request.get_json()["selected_value"]
+    interval_value = request.get_json()["interval_value"]
 
-	print(selected_value)
-	print(interval_value)
+    print(selected_value)
+    print(interval_value)
 
-	technical_indicators = pd.DataFrame()
+    technical_indicators = pd.DataFrame()
 
-	# final_orders_raw_data = collection.find({"execution_date":str(date_selected)})
+    # final_orders_raw_data = collection.find({"execution_date":str(date_selected)})
 
-	# final_orders_raw_data =  pd.DataFrame(list(final_orders_raw_data))
-
-    
-
-	if interval_value == "1min":
-		if selected_value == "All":
-			technical = db.technical_indicator_1_minutes.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_1_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-	elif interval_value == "5min":
-		if selected_value == "All":
-			technical = db.technical_indicator_5_minutes.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_5_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-	elif interval_value == "15min":
-		if selected_value == "All":
-			technical = db.technical_indicator_15_minutes.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_15_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-
-	elif interval_value == "30min":
-		if selected_value == "All":
-			technical = db.technical_indicator_30_minutes.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_30_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-
-	elif interval_value == "60min":
-		if selected_value == "All":
-			technical = db.technical_indicator_60_minutes.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_60_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
+    # final_orders_raw_data =  pd.DataFrame(list(final_orders_raw_data))
 
 
-	elif interval_value == "1day":
-		if selected_value == "All":
-			technical = db.technical_indicator_1_day.find().sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
-		else:
-			technical = db.technical_indicator_1_day.find({"Stock":str(selected_value)}).sort("Datetime", -1)
-			technical_indicators =  pd.DataFrame(list(technical))
 
-	if len(technical_indicators)>0:
-		technical_indicators = technical_indicators[['Stock', 'Datetime', 'Open', 'High', 'Low','Close', 'Volume','buy_probability', 'sell_probability', 'SMA_Call', 'RSI_Call','MACD_Call', 'Pivot_Call', 'PCR_Call', 'BB_Call','VWAP_Call','SuperTrend_Call']]
-		technical_indicators['buy_probability'] = technical_indicators['buy_probability'].fillna(0)
-		technical_indicators['sell_probability'] = technical_indicators['sell_probability'].fillna(0)
+    if interval_value == "1min":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_1_minutes.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_1_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    elif interval_value == "5min":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_5_minutes.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_5_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    elif interval_value == "15min":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_15_minutes.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_15_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
 
-	else:
-		technical_indicators = pd.DataFrame(columns=['Stock', 'Datetime', 'Open', 'High', 'Low','Close', 'Volume','buy_probability', 'sell_probability', 'SMA_Call', 'RSI_Call','MACD_Call', 'Pivot_Call', 'PCR_Call', 'BB_Call','VWAP_Call','SuperTrend_Call'])
+    elif interval_value == "30min":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_30_minutes.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_30_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
 
-	print(technical_indicators)
-	technical_indicators = technical_indicators.fillna('-')
-	
-	paper_data = {"technical_indicators": technical_indicators.to_dict()}
+    elif interval_value == "60min":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_60_minutes.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_60_minutes.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
 
-	return jsonify(paper_data=paper_data)
+
+    elif interval_value == "1day":
+    	if selected_value == "All":
+    		technical = db.technical_indicator_1_day.find().sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+    	else:
+    		technical = db.technical_indicator_1_day.find({"Stock":str(selected_value)}).sort("Datetime", -1)
+    		technical_indicators =  pd.DataFrame(list(technical))
+
+    if len(technical_indicators)>0:
+    	technical_indicators = technical_indicators[['Stock', 'Datetime', 'Open', 'High', 'Low','Close', 'Volume','buy_probability', 'sell_probability', 'SMA_Call', 'RSI_Call','MACD_Call', 'Pivot_Call', 'PCR_Call', 'BB_Call','VWAP_Call','SuperTrend_Call']]
+    	technical_indicators['buy_probability'] = technical_indicators['buy_probability'].fillna(0)
+    	technical_indicators['sell_probability'] = technical_indicators['sell_probability'].fillna(0)
+
+    else:
+    	technical_indicators = pd.DataFrame(columns=['Stock', 'Datetime', 'Open', 'High', 'Low','Close', 'Volume','buy_probability', 'sell_probability', 'SMA_Call', 'RSI_Call','MACD_Call', 'Pivot_Call', 'PCR_Call', 'BB_Call','VWAP_Call','SuperTrend_Call'])
+
+    print(technical_indicators)
+    technical_indicators = technical_indicators.fillna('-')
+
+
+    fig = go.Figure()
+
+    if len(technical_indicators) > 0:
+        # Add buy_probability trace
+        fig.add_trace(go.Scatter(x=technical_indicators['Datetime'], y=technical_indicators['buy_probability'], name='Buy Probability', yaxis='y1'))
+
+        # Add sell_probability trace
+        fig.add_trace(go.Scatter(x=technical_indicators['Datetime'], y=technical_indicators['sell_probability'], name='Sell Probability', yaxis='y2'))
+
+        # Customize the layout
+        fig.update_layout(
+            title='Buy Probability vs Sell Probability',
+            xaxis=dict(title='Date Time'),
+            yaxis=dict(title='Buy Probability', side='left'),
+            yaxis2=dict(title='Sell Probability', side='right', overlaying='y', showgrid=False)
+        )
+
+
+    # Convert the chart to JSON format
+    chart_json = fig.to_json()
+
+    paper_data = {"technical_indicators": technical_indicators.to_dict(),
+                    "chart":json.loads(chart_json)}
+
+    return jsonify(paper_data=paper_data)
 
 @app.route("/options_signals",methods=["GET","POST"])
 def options_signals_preview():
@@ -1638,6 +1662,8 @@ def get_candle_stick_data():
         else:
             stoploss_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp'])
 
+    if not completed_data.empty:
+        completed_data = completed_data.sort_values(by='Datetime')
 
     paper_data = {"completed_data": completed_data.to_dict(orient='records'),
               "open_data": open_data.to_dict(orient='records'),
@@ -1645,11 +1671,170 @@ def get_candle_stick_data():
               "stoploss_data": stoploss_data.to_dict(orient='records'),
               }
 
+    # Chart 1: Bar chart - PNL distribution per strategy
+
+    # Check if completed_data DataFrame is not empty
+    if not completed_data.empty:
+        grouped_data = completed_data.groupby("Strategy")["PNL"].sum().reset_index()
+
+        chart1 = go.Figure()
+
+        for idx, row in grouped_data.iterrows():
+            color = "red" if row["PNL"] < 0 else "green"
+            chart1.add_trace(go.Bar(x=[row["Strategy"]], y=[row["PNL"]], name=row["Strategy"],
+                                    marker_color=color, showlegend=False))
+
+        chart1.update_layout(
+            xaxis_title="Strategy",
+            yaxis_title="Profit and Loss",
+            plot_bgcolor='rgba(240, 240, 240, 0.05)',
+            xaxis=dict(
+                tickfont=dict(size=12),
+                titlefont=dict(size=14),
+            ),
+            yaxis=dict(
+                tickfont=dict(size=12),
+                titlefont=dict(size=14),
+            ),
+            font=dict(
+                family="Arial, sans-serif",
+                size=14,
+                color="black",
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+            ),
+        )
+        # chart1 = px.bar(completed_data, x="Strategy", y="PNL", labels={"PNL": "Profit and Loss"},
+        #                 color_discrete_sequence=["red" if value < 0 else "green" for value in completed_data["PNL"]])
+    else:
+        # Create an empty chart with the appropriate labels
+        chart1 = go.Figure(data=[go.Bar(x=[], y=[])])
+        chart1.update_layout(
+            xaxis_title="Strategy",
+            yaxis_title="Profit and Loss",
+        )
+
+    # chart1 = px.bar(completed_data, x="Strategy", y="PNL", labels={"PNL": "Profit and Loss"})
+    chart1_json = json.loads(chart1.to_json())
+
+    # Chart 2: Pie chart - Distribution of conclusion types
+    conclusion_counts = pd.Series({
+        "completed": len(completed_data),
+        "open": len(open_data),
+        "target": len(target_data),
+        "stoploss": len(stoploss_data)
+    })
+    chart2 = px.pie(names=conclusion_counts.index, values=conclusion_counts.values)
+    chart2_json = json.loads(chart2.to_json())
+
+
+    if not completed_data.empty:
+        
+
+        # Calculate the cumulative sum of PNL values
+        completed_data['Cumulative_PNL'] = completed_data['PNL'].cumsum()
+
+        # Calculate the percentage change in Cumulative PNL at every point
+        # completed_data['Percentage_Change'] = completed_data['PNL'].pct_change().fillna(0) * 100
+
+        chart_3 = go.Figure()
+
+        # Create area plot
+        chart_3.add_trace(go.Scatter(x=completed_data["Datetime"], y=completed_data["Cumulative_PNL"],
+                              mode='lines', fill='tozeroy', name='Cumulative P&L by Time'))
+
+        # Add percentage change labels to each data point
+        for index, row in completed_data.iterrows():
+            # chart_3.add_trace(go.Scatter(x=[row["Datetime"]], y=[row["Cumulative_PNL"]],
+            #                               mode='text', text=[f"{row['Percentage_Change']:.2f}%"], textposition="top center",
+            #                               showlegend=False))
+            chart_3.add_trace(go.Scatter(x=[row["Datetime"]], y=[row["Cumulative_PNL"]],
+                                  mode='text', text=[f"{row['Cumulative_PNL']:.2f}"],
+                                  textposition="top center", showlegend=False,
+                                  textfont=dict(color='green' if row['Cumulative_PNL'] >= 0 else 'red')))
+
+        chart_3.update_layout(
+                xaxis_title="Time",
+                yaxis_title="Cumulative Profit and Loss",
+                plot_bgcolor='rgba(240, 240, 240, 0.05)',
+                xaxis=dict(
+                    tickfont=dict(size=12),
+                    titlefont=dict(size=14),
+                ),
+                yaxis=dict(
+                    tickfont=dict(size=12),
+                    titlefont=dict(size=14),
+                ),
+                font=dict(
+                    family="Arial, sans-serif",
+                    size=14,
+                    color="black",
+                ),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1,
+                ),
+            )
+
+    else:
+        # Create an empty chart with the appropriate labels
+        chart_3 = go.Figure(data=[go.Scatter(x=[], y=[], mode='lines')])
+        chart_3.update_layout(
+            xaxis_title="Time",
+            yaxis_title="Profit and Loss",
+        )
+
+    chart3_json = json.loads(chart_3.to_json())
+
+    total_pnl = 0
+    average_pnl_per_trade = 0
+    num_completed_trades = 0 
+    num_open_trades = 0 
+    win_rate = 0
+
+    # Check if completed_data DataFrame is not empty
+    if not completed_data.empty:
+        total_pnl = completed_data["PNL"].sum()
+        average_pnl_per_trade = completed_data["PNL"].mean()
+        num_completed_trades = len(completed_data)
+        num_open_trades = len(open_data)
+        win_rate = len(completed_data[completed_data["PNL"] > 0]) / num_completed_trades
+
+    metrics = {
+        "total_pnl": total_pnl,
+        "average_pnl_per_trade": average_pnl_per_trade,
+        "num_completed_trades": num_completed_trades,
+        "num_open_trades": num_open_trades,
+        "win_rate": win_rate
+    }
+
+    # Add charts and metrics to the response
+    response_data = {
+        "data": data,
+        "paper_data": paper_data,
+        "charts": {
+            "chart1": chart1_json,
+            "chart2": chart2_json,
+            "chart3": chart3_json
+        },
+        "metrics": metrics
+    }
+
+
+
     # print(paper_data)
 
     # print(data)
 
-    return Response(json.dumps({"data": data, "paper_data": paper_data}), content_type="application/json")
+    return Response(json.dumps(response_data), content_type="application/json")
 
 
     # return jsonify(data=data,paper_data=paper_data)
@@ -1754,7 +1939,7 @@ def get_demand_latest():
 
     print(current_dir)
 
-    nifty_df = pd.read_csv("application/Nifty50_Stocks.csv")
+    nifty_df = pd.read_csv("Nifty50_Stocks.csv")
 
     for idx in range(0,len(nifty_df)):
         stock = nifty_df.loc[idx,"Yahoo Symbol"]

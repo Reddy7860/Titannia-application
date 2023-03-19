@@ -6,6 +6,7 @@
 <html>
   <head>
     <title>Data Table</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
 
@@ -15,9 +16,11 @@
 
     <script src="https://smartapi.angelbroking.com/common/v1.js"></script>
 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <style>
         /* styling for the table */
-        table {
+        /*table {
             width: 100%;
             border-collapse: collapse;
         }
@@ -28,21 +31,62 @@
         }
         th {
             background-color: #f2f2f2;
+        }*/
+
+        .date-range {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .date-label {
+          margin-right: 10px;
+        }
+
+        .date-input {
+          width: 140px;
+        }
+
+        .update-button {
+          padding: 8px 12px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .update-button:hover {
+          background-color: #0069d9;
+        }
+
+        #active-table-body td,
+        #voided-table-body td {
+            text-align: center;
+            vertical-align: middle;
         }
 
 
     </style>
 
-    <form id="date-form">
-            Start Date: <input type="date" id="start-date" name="start_date">
-            End Date: <input type="date" id="end-date" name="end_date">
-            <input type="button" value="Update Chart" id="update-button">
-    </form>
+    <div class="date-range">
+      <label for="start-date" class="date-label">Start Date:</label>
+      <input type="date" id="start-date" name="start_date" placeholder="YYYY-MM-DD" class="date-input">
+
+      <label for="end-date" class="date-label">End Date:</label>
+      <input type="date" id="end-date" name="end_date" placeholder="YYYY-MM-DD" class="date-input">
+
+      <button id="update-button" class="update-button">Update Chart</button>
+    </div>
     <div>
     <h2> Active Stocks </h2>
     </div>
-    <table id="active-table">
-    <thead>
+
+    <table id="active-table" class="table table-bordered">
+            <thead>
             <th>Stock</th>
             <th>Pattern</th>
             <th>Strength</th>
@@ -51,18 +95,18 @@
             <th>Zone 2</th>
             <th>Fit</th>
             <th>Percentage Change</th>
-        </tr>
-    </thead>
-    <tbody id="active-table-body">
-        <!-- Data rows will be added here -->
-    </tbody>
+            </thead>
+            <tbody id="active-table-body">
+                <!-- Data rows will be added here -->
+            </tbody>
+    </table>
     <br/>
     <br/>
     <div>
-    <h2> Voided Stocks </h2>
+        <h2 class="mt-4">Voided Stocks</h2>
     </div>
-    <table id="voided-table">
-    <thead>
+    <table id="voided-table" class="table table-bordered">
+        <thead>
             <th>Stock</th>
             <th>Pattern</th>
             <th>Strength</th>
@@ -72,11 +116,13 @@
             <th>Fit</th>
             <th>Percentage Change</th>
             <th>Voided_Time</th>
-        </tr>
-    </thead>
-    <tbody id="voided-table-body">
-        <!-- Data rows will be added here -->
-    </tbody>
+        </thead>
+        <tbody id="voided-table-body">
+            <!-- Data rows will be added here -->
+        </tbody>
+    </table>
+
+    
 
 </body>
 
@@ -88,6 +134,13 @@
 
         $(document).ready(function() {
             $("#update-button").click(function() {
+                // Show loading GIF
+
+                // <img src="{{ url_for('static', filename='images/Logo.png') }}" width="100" alt="Titania Logo" style="vertical-align: top;" />
+
+                $('#active-table-body').html('<tr><td colspan="8"><img src="/static/images/loading-waiting.gif" /></td></tr>');
+                $('#voided-table-body').html('<tr><td colspan="9"><img src="/static/images/loading-waiting.gif" /></td></tr>');
+
                 refreshTable()
             })
         });

@@ -122,18 +122,18 @@
                                 var row = $('<tr>');
                                 row.append($('<td>').html(value));
                                 row.append($('<td>').html('<a href="' + money_control_data.Link[index] + '">' + money_control_data.Link[index] + '</a>'));
-                                row.append($('<td>').html(money_control_data.entities[index]));
-                                row.append($('<td>').html(money_control_data.spacy_sentiment[index]));
-                                row.append($('<td>').html(money_control_data.spacy_polarity[index]));
-                                row.append($('<td>').html(money_control_data.spacy_pos_words[index]));
-                                row.append($('<td>').html(money_control_data.spacy_neg_words[index]));
-                                row.append($('<td>').html(money_control_data.nltk_sentiment[index]));
-                                row.append($('<td>').html(money_control_data.nltk_neg[index]));
-                                row.append($('<td>').html(money_control_data.nltk_neu[index]));
-                                row.append($('<td>').html(money_control_data.nltk_pos[index]));
-                                row.append($('<td>').html(money_control_data.nltk_compound[index]));
-                                // row.append($('<td>').html(money_control_data.amazon_sentiment_scores[index]));
-                                row.append($('<td>').html(money_control_data.finbert_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.entities[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_polarity[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_pos_words[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_neg_words[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_neg[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_neu[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_pos[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_compound[index]));
+                                // // row.append($('<td>').html(money_control_data.amazon_sentiment_scores[index]));
+                                // row.append($('<td>').html(money_control_data.finbert_sentiment[index]));
 
                                 money_control_table_body.append(row);
                             });
@@ -414,7 +414,7 @@
                 <tr>
                     <th>Headline</th>
                     <th>Link</th>
-                    <th>entities</th>
+                    <!-- <th>entities</th>
                     <th>spacy_sentiment</th>
                     <th>spacy_polarity</th>
                     <th>spacy_pos_words</th>
@@ -424,8 +424,8 @@
                     <th>nltk_neu</th>
                     <th>nltk_pos</th>
                     <th>nltk_compound</th>
-                    <!-- <th>amazon_sentiment_scores</th> -->
-                    <th>finbert_sentiment</th>
+                    <th>amazon_sentiment_scores</th>
+                    <th>finbert_sentiment</th> -->
                 </tr>
             </thead>
             <tbody id="money-control-table-body">

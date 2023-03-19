@@ -46,6 +46,9 @@
             <input type="button" value="Update Chart" id="update-button">
         </form>
 
+        <div id="chart"></div>
+    <br/>
+
         <table id="candle-stick-data-table">
     <thead>
         <tr>
@@ -183,6 +186,10 @@
                     tableBody.appendChild(row);
 
                 }
+
+                var obj = data['paper_data']['chart'];
+
+                Plotly.newPlot("chart", obj.data, obj.layout);
 
 
         });

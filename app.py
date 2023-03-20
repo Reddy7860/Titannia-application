@@ -1053,7 +1053,52 @@ def open_interest():
 
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     header="OI for Nifty"
-    return render_template('open_interest.html', graphJSON=graphJSON)
+
+    # Open Interest Chart
+    plot_oi = go.Figure()
+    plot_oi.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_openinterest'], name='Call Open Interest'))
+    plot_oi.add_trace(go.Scatter(x=merged_filter_data['put_strikeprice'], y=merged_filter_data['put_openinterest'], name='Put Open Interest'))
+    plot_oi.update_layout(title='Open Interest Chart', xaxis_title='Strike Price', yaxis_title='Open Interest')
+    graphJSON_oi = json.dumps(plot_oi, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Implied Volatility Chart
+    plot_iv = go.Figure()
+    plot_iv.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_impliedvolatility'], name='Call Implied Volatility'))
+    plot_iv.add_trace(go.Scatter(x=merged_filter_data['put_strikeprice'], y=merged_filter_data['put_impliedvolatility'], name='Put Implied Volatility'))
+    plot_iv.update_layout(title='Implied Volatility Chart', xaxis_title='Strike Price', yaxis_title='Implied Volatility')
+    graphJSON_iv = json.dumps(plot_iv, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Change in Open Interest Chart
+    plot_coi = go.Figure()
+    plot_coi.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_changeinopeninterest'], name='Call Change in Open Interest'))
+    plot_coi.add_trace(go.Scatter(x=merged_filter_data['put_strikeprice'], y=merged_filter_data['put_changeinopeninterest'], name='Put Change in Open Interest'))
+    plot_coi.update_layout(title='Change in Open Interest Chart', xaxis_title='Strike Price', yaxis_title='Change in Open Interest')
+    graphJSON_coi = json.dumps(plot_coi, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Call-Put Ratio Chart
+    fig_cpr = go.Figure()
+    fig_cpr.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_openinterest']/merged_filter_data['put_openinterest'], name='Call-Put Ratio'))
+    fig_cpr.update_layout(title='Call-Put Ratio for Options', xaxis_title='Strike Price', yaxis_title='Call-Put Ratio')
+    graphJSON_cpr = json.dumps(fig_cpr, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Open Interest vs. Implied Volatility Chart
+    fig_oi_iv = go.Figure()
+    fig_oi_iv.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_openinterest'], mode='lines', name='Call OI'))
+    fig_oi_iv.add_trace(go.Scatter(x=merged_filter_data['call_strikeprice'], y=merged_filter_data['call_impliedvolatility'], mode='lines', name='Call IV'))
+    fig_oi_iv.add_trace(go.Scatter(x=merged_filter_data['put_strikeprice'], y=merged_filter_data['put_openinterest'], mode='lines', name='Put OI'))
+    fig_oi_iv.add_trace(go.Scatter(x=merged_filter_data['put_strikeprice'], y=merged_filter_data['put_impliedvolatility'], mode='lines', name='Put IV'))
+    fig_oi_iv.update_layout(title='Open Interest and Implied Volatility for Calls and Puts', xaxis_title='Strike Price', yaxis_title='Open Interest / Implied Volatility')
+    graphJSON_oi_iv = json.dumps(fig_oi_iv, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Heatmap of Open Interest and Implied Volatility
+    fig_heatmap = go.Figure(data=go.Heatmap(x=merged_filter_data['call_strikeprice'], y=merged_filter_data.index, z=merged_filter_data[['call_openinterest', 'call_impliedvolatility', 'put_openinterest', 'put_impliedvolatility']], colorscale='RdBu'))
+    fig_heatmap.update_layout(title='Heatmap of Open Interest and Implied Volatility', xaxis_title='Strike Price', yaxis_title='Expiry Date')
+    graphJSON_heatmap = json.dumps(fig_heatmap, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+
+
+    return render_template('open_interest.html',open_interest=open_interest, graphJSON=graphJSON, graphJSON_oi=graphJSON_oi, graphJSON_iv=graphJSON_iv, graphJSON_coi=graphJSON_coi,graphJSON_cpr=graphJSON_cpr,graphJSON_oi_iv=graphJSON_oi_iv,graphJSON_heatmap=graphJSON_heatmap)
 
 def total_loss_at_strike(chain, expiry_price):
     """Calculate loss at strike price"""
@@ -1846,87 +1891,87 @@ def demand_and_supply():
     return render_template('demand_and_supply_zone.html', start_date=start_date.strftime("%Y-%m-%d"),end_date = current_date.strftime("%Y-%m-%d"))
 
 
-def supply_zone_detection(df,stock,df_supply_and_demand):
-    for ind in range(1, df.shape[0]-1):
-        if (df.iloc[ind-1]['Open'] < df.iloc[ind-1]['Close'] and # Green Candle
-            (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im Balance Candle
-            (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
-            (df.iloc[ind+1]['Open'] > df.iloc[ind+1]['Close']) and # Red Candle
-            (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))
-           ):
+# def supply_zone_detection(df,stock,df_supply_and_demand):
+#     for ind in range(1, df.shape[0]-1):
+#         if (df.iloc[ind-1]['Open'] < df.iloc[ind-1]['Close'] and # Green Candle
+#             (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im Balance Candle
+#             (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
+#             (df.iloc[ind+1]['Open'] > df.iloc[ind+1]['Close']) and # Red Candle
+#             (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))
+#            ):
 
-            df_supply_and_demand.loc[ind,'stock'] = stock
-            df_supply_and_demand.loc[ind,'pattern'] = "Supply Reversal Pattern(R-B-D)"
-            df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
-            df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['Low'],2) 
-            # df_supply_and_demand.loc[ind,'zone_2'] = round(max(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
-            df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['High'],2)
+#             df_supply_and_demand.loc[ind,'stock'] = stock
+#             df_supply_and_demand.loc[ind,'pattern'] = "Supply Reversal Pattern(R-B-D)"
+#             df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
+#             df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['Low'],2) 
+#             # df_supply_and_demand.loc[ind,'zone_2'] = round(max(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
+#             df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['High'],2)
 
-            if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
-                df_supply_and_demand.loc[ind,'strength'] = "Strong"
-            else:
-                df_supply_and_demand.loc[ind,'strength'] = "Normal"
+#             if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
+#                 df_supply_and_demand.loc[ind,'strength'] = "Strong"
+#             else:
+#                 df_supply_and_demand.loc[ind,'strength'] = "Normal"
 
-        elif ((df.iloc[ind-1]['Open'] > df.iloc[ind-1]['Close']) and # Red Candle
-              (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5*(df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im-Balance Candle
-              (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3*(df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
-              (df.iloc[ind+1]['Open'] > df.iloc[ind+1]['Close']) and # Red Candle
-              (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5*(df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))  # Im-Balance Candle
-             ):
+#         elif ((df.iloc[ind-1]['Open'] > df.iloc[ind-1]['Close']) and # Red Candle
+#               (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5*(df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im-Balance Candle
+#               (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3*(df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
+#               (df.iloc[ind+1]['Open'] > df.iloc[ind+1]['Close']) and # Red Candle
+#               (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5*(df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))  # Im-Balance Candle
+#              ):
 
-            df_supply_and_demand.loc[ind,'stock'] = stock
-            df_supply_and_demand.loc[ind,'pattern'] = "Supply Continuous Pattern(D-B-D)"
-            df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
-            df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['Low'],2)
-            # df_supply_and_demand.loc[ind,'zone_2'] = round(max(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
-            df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['High'],2)
+#             df_supply_and_demand.loc[ind,'stock'] = stock
+#             df_supply_and_demand.loc[ind,'pattern'] = "Supply Continuous Pattern(D-B-D)"
+#             df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
+#             df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['Low'],2)
+#             # df_supply_and_demand.loc[ind,'zone_2'] = round(max(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
+#             df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['High'],2)
 
-            if(df.iloc[ind+1]['Open'] < df.iloc[ind]['Open']):
-                df_supply_and_demand.loc[ind,'strength'] = "Strong"
-            else:
-                df_supply_and_demand.loc[ind,'strength'] = "Normal"
+#             if(df.iloc[ind+1]['Open'] < df.iloc[ind]['Open']):
+#                 df_supply_and_demand.loc[ind,'strength'] = "Strong"
+#             else:
+#                 df_supply_and_demand.loc[ind,'strength'] = "Normal"
                 
-    return df_supply_and_demand
+#     return df_supply_and_demand
 
-def demand_zone_detection(df,stock,df_supply_and_demand):
-    for ind in range(1, df.shape[0]-1):
-        if ((df.iloc[ind-1]['Open'] > df.iloc[ind-1]['Close']) and
-            (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and
-            (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
-            (df.iloc[ind+1]['Open'] < df.iloc[ind+1]['Close']) and # Green Candle
-            (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))
-           ):
+# def demand_zone_detection(df,stock,df_supply_and_demand):
+#     for ind in range(1, df.shape[0]-1):
+#         if ((df.iloc[ind-1]['Open'] > df.iloc[ind-1]['Close']) and
+#             (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and
+#             (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
+#             (df.iloc[ind+1]['Open'] < df.iloc[ind+1]['Close']) and # Green Candle
+#             (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))
+#            ):
 
-            df_supply_and_demand.loc[ind,'stock'] = stock
-            df_supply_and_demand.loc[ind,'pattern'] = "Demand Reversal Pattern(D-B-R)"
-            df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
-            df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['High'],2)
-            # df_supply_and_demand.loc[ind,'zone_2'] = round(min(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
-            df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['Low'],2)
+#             df_supply_and_demand.loc[ind,'stock'] = stock
+#             df_supply_and_demand.loc[ind,'pattern'] = "Demand Reversal Pattern(D-B-R)"
+#             df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
+#             df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['High'],2)
+#             # df_supply_and_demand.loc[ind,'zone_2'] = round(min(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
+#             df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['Low'],2)
 
-            if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
-                df_supply_and_demand.loc[ind,'strength'] = "Strong"
-            else:
-                df_supply_and_demand.loc[ind,'strength'] = "Normal"
+#             if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
+#                 df_supply_and_demand.loc[ind,'strength'] = "Strong"
+#             else:
+#                 df_supply_and_demand.loc[ind,'strength'] = "Normal"
 
-        elif ((df.iloc[ind-1]['Open'] < df.iloc[ind-1]['Close']) and # Green Candle
-              (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im-Balance Candle
-              (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
-              (df.iloc[ind+1]['Open'] < df.iloc[ind+1]['Close']) and # Green Candle
-              (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))  # Im-Balance Candle
-             ):
+#         elif ((df.iloc[ind-1]['Open'] < df.iloc[ind-1]['Close']) and # Green Candle
+#               (abs(df.iloc[ind-1]['Open'] - df.iloc[ind-1]['Close']) > 0.5 * (df.iloc[ind-1]['High'] - df.iloc[ind-1]['Low'])) and # Im-Balance Candle
+#               (abs(df.iloc[ind]['Open'] - df.iloc[ind]['Close']) <= 0.3 * (df.iloc[ind]['High'] - df.iloc[ind]['Low'])) and
+#               (df.iloc[ind+1]['Open'] < df.iloc[ind+1]['Close']) and # Green Candle
+#               (abs(df.iloc[ind+1]['Open'] - df.iloc[ind+1]['Close']) > 0.5 * (df.iloc[ind+1]['High'] - df.iloc[ind+1]['Low']))  # Im-Balance Candle
+#              ):
 
-            df_supply_and_demand.loc[ind,'stock'] = stock
-            df_supply_and_demand.loc[ind,'pattern'] = "Demand Continuous Pattern(R-B-R)"
-            df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
-            df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['High'],2)
-            # df_supply_and_demand.loc[ind,'zone_2'] = round(min(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
-            df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['Low'],2)
+#             df_supply_and_demand.loc[ind,'stock'] = stock
+#             df_supply_and_demand.loc[ind,'pattern'] = "Demand Continuous Pattern(R-B-R)"
+#             df_supply_and_demand.loc[ind,'Date'] = df.iloc[ind]['Date']
+#             df_supply_and_demand.loc[ind,'zone_1'] = round(df.iloc[ind]['High'],2)
+#             # df_supply_and_demand.loc[ind,'zone_2'] = round(min(df.iloc[ind]['Open'],df.iloc[ind]['Close']),2)
+#             df_supply_and_demand.loc[ind,'zone_2'] = round(df.iloc[ind]['Low'],2)
 
-            if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
-                df_supply_and_demand.loc[ind,'strength'] = "Strong"
-            else:
-                df_supply_and_demand.loc[ind,'strength'] = "Normal"
+#             if(df.iloc[ind+1]['Open'] > df.iloc[ind]['Open']):
+#                 df_supply_and_demand.loc[ind,'strength'] = "Strong"
+#             else:
+#                 df_supply_and_demand.loc[ind,'strength'] = "Normal"
 
 
 @app.route('/get_demand_latest', methods=['POST'])
@@ -1934,118 +1979,182 @@ def get_demand_latest():
     start_date = request.get_json()["selectedStartDate"]
     end_date = request.get_json()["selectedEndDate"]
 
-    df_supply_and_demand_final = pd.DataFrame(columns=["stock", "pattern", "strength", "Date", "zone_1", "zone_2"])
-    current_dir = os.getcwd()
+    collection = db["demand_and_supply_zones_daily"]
+    demand_and_supply_zones_daily = collection.find({})
+    demand_and_supply_zones_daily = pd.DataFrame(list(demand_and_supply_zones_daily))
 
-    print(current_dir)
+    print(demand_and_supply_zones_daily.columns)
 
-    nifty_df = pd.read_csv("Nifty50_Stocks.csv")
+    demand_and_supply_zones_daily = demand_and_supply_zones_daily[['stock', 'pattern', 'strength', 'Date', 'zone_1', 'zone_2', 'Voided_Time', 'Percentage Change', 'fit', 'Execution_date']]
 
-    for idx in range(0,len(nifty_df)):
-        stock = nifty_df.loc[idx,"Yahoo Symbol"]
-        print(stock)
-        # Download the data from Yahoo Finance
-        data = yf.download(stock, start=start_date, end=end_date)
-        data.reset_index(inplace=True)
-        # Print the downloaded data
-        print(data)
-        
-        df_supply_and_demand = pd.DataFrame(columns=["stock", "pattern", "strength", "Date", "zone_1", "zone_2"])
-        
-        supply_zone_df = supply_zone_detection(data,stock,df_supply_and_demand)
-        
-        if supply_zone_df is not None and len(supply_zone_df) > 0:
-            df_supply_and_demand_final = pd.concat([df_supply_and_demand_final, supply_zone_df], axis=0, ignore_index=True)
-        
-        demand_zone_df = demand_zone_detection(data,stock,df_supply_and_demand)
-        
-        if demand_zone_df is not None and len(demand_zone_df) > 0:
-            df_supply_and_demand_final = pd.concat([df_supply_and_demand_final, demand_zone_df], axis=0, ignore_index=True)
-            
-        if len(df_supply_and_demand_final) > 0 :
-            print(df_supply_and_demand_final)
-            df_supply_and_demand_final.reset_index(inplace=True,drop=True)
-            
+    print(demand_and_supply_zones_daily.dtypes)
 
-    if len(df_supply_and_demand_final) > 0 :
-        df_supply_and_demand_final["Voided_Time"] = ""
-        df_supply_and_demand_final["Percentage Change"]= 0
+    filtered_df = demand_and_supply_zones_daily[(demand_and_supply_zones_daily['strength'] == 'Strong') & 
+                                      (demand_and_supply_zones_daily['fit'] == 'Active') & 
+                                      (demand_and_supply_zones_daily['Voided_Time'].isna())]
 
-    for ind in range(df_supply_and_demand_final.shape[0]):
-        stock = df_supply_and_demand_final.loc[ind, "stock"]
-        call_date = df_supply_and_demand_final.loc[ind, "Date"]
-        call_date = pd.to_datetime(call_date).date()
-        print(stock)
-
-        nextWorkingDay = (pd.to_datetime(call_date) + BDay(1)).date()
-        nextWorkingDay = (pd.to_datetime(nextWorkingDay) + BDay(1)).date()
-
-        try:
-            if (nextWorkingDay - pd.to_datetime("today").date()).days <= -1:
-                curr_stock_data = yf.download(stock, start=nextWorkingDay, end=pd.to_datetime("today")+pd.DateOffset(1))
-
-                curr_stock_data = curr_stock_data.reset_index()
-
-                max_zone = max(df_supply_and_demand_final.loc[ind, "zone_1"], df_supply_and_demand_final.loc[ind, "zone_2"])
-                min_zone = min(df_supply_and_demand_final.loc[ind, "zone_1"], df_supply_and_demand_final.loc[ind, "zone_2"])
-
-                df_supply_and_demand_final.loc[ind, "fit"] = "Active"
-
-
-                current_close = curr_stock_data.tail(1)["Close"].values[0]
-
-                if (df_supply_and_demand_final.loc[ind, "pattern"] == "Supply Reversal Pattern(R-B-D)") or (
-                        df_supply_and_demand_final.loc[ind, "pattern"] == "Supply Continuous Pattern(D-B-D)"):
-
-                    df_supply_and_demand_final.loc[ind, "Percentage Change"] = round(
-                        (((df_supply_and_demand_final.loc[ind, "zone_1"] - current_close) / df_supply_and_demand_final.loc[ind, "zone_1"]) * 100), 2)
-
-                    for row_ind in range(curr_stock_data.shape[0]):
-                        if curr_stock_data.loc[row_ind, "Close"] > max_zone:
-                            df_supply_and_demand_final.loc[ind, "fit"] = "Voided"
-                            df_supply_and_demand_final.loc[ind, "Voided_Time"] = curr_stock_data.loc[row_ind, "Date"]
-                            break
-
-                else:
-                    df_supply_and_demand_final.loc[ind, "Percentage Change"] = round(
-                        (((current_close - df_supply_and_demand_final.loc[ind, "zone_1"]) / df_supply_and_demand_final.loc[ind, "zone_1"]) * 100), 2)
-
-                    for row_ind in range(curr_stock_data.shape[0]):
-                        if curr_stock_data.loc[row_ind, "Close"] < min_zone:
-                            df_supply_and_demand_final.loc[ind, "fit"] = "Voided"
-                            df_supply_and_demand_final.loc[ind, "Voided_Time"] = curr_stock_data.loc[row_ind, "Date"]
-                            break
-
-            else:
-                df_supply_and_demand_final.loc[ind, "fit"] = "Active"
-
-        except Exception as e:
-            print("error for :")
-            print(stock)
-
-    print(df_supply_and_demand_final)
-
-    filtered_df = df_supply_and_demand_final[(df_supply_and_demand_final['strength'] == 'Strong') & 
-                                          (df_supply_and_demand_final['fit'] == 'Active') & 
-                                          (df_supply_and_demand_final['Voided_Time']=="")]
-
-    voided_df = df_supply_and_demand_final[(df_supply_and_demand_final['Voided_Time']!="")]
+    voided_df = demand_and_supply_zones_daily[~(demand_and_supply_zones_daily['Voided_Time'].isna())]
 
     filtered_df = filtered_df.sort_values(by="Date", ascending=False)
-    filtered_df.reset_index(inplace=True,drop=True)
+    filtered_df.reset_index(inplace=True, drop=True)
 
     voided_df = voided_df.sort_values(by="Date", ascending=False)
-    voided_df.reset_index(inplace=True,drop=True)
+    voided_df.reset_index(inplace=True, drop=True)
 
-    print(df_supply_and_demand_final)
+    # Calculate metrics
+    total_active_stocks = filtered_df.shape[0]
+    total_voided_stocks = voided_df.shape[0]
+    voided_stocks_with_negative_change = voided_df[voided_df['Percentage Change'] < 0].shape[0]
+    percent_voided_stocks_with_negative_change = round((voided_stocks_with_negative_change / total_voided_stocks) * 100, 2)
+    avg_percent_change = round(filtered_df['Percentage Change'].mean(), 2)
+
+    # filter based on start and end dates
+    # filtered_df['Date'] = pd.to_datetime(filtered_df['Date'])
+    # filtered_df = filtered_df[(filtered_df['Date'] >= start_date) & (filtered_df['Date'] <= end_date)]
+
+    # voided_df['Date'] = pd.to_datetime(voided_df['Date'])
+    # voided_df = voided_df[(voided_df['Date'] >= start_date) & (voided_df['Date'] <= end_date)]
+
     print(filtered_df)
     print(voided_df)
 
-    final_data = {"total_stocks":df_supply_and_demand_final.to_dict(),
-                    "active_stocks": filtered_df.to_dict(),
-                    "voided_stocks":voided_df.to_dict()}
+    # # df_supply_and_demand_final = pd.DataFrame(columns=["stock", "pattern", "strength", "Date", "zone_1", "zone_2"])
+    # # current_dir = os.getcwd()
 
-    return jsonify(final_data=final_data)
+    # # print(current_dir)
+
+    # # nifty_df = pd.read_csv("Nifty50_Stocks.csv")
+
+    # # for idx in range(0,len(nifty_df)):
+    # #     stock = nifty_df.loc[idx,"Yahoo Symbol"]
+    # #     print(stock)
+    # #     # Download the data from Yahoo Finance
+    # #     data = yf.download(stock, start=start_date, end=end_date)
+    # #     data.reset_index(inplace=True)
+    # #     # Print the downloaded data
+    # #     print(data)
+        
+    # #     df_supply_and_demand = pd.DataFrame(columns=["stock", "pattern", "strength", "Date", "zone_1", "zone_2"])
+        
+    # #     supply_zone_df = supply_zone_detection(data,stock,df_supply_and_demand)
+        
+    # #     if supply_zone_df is not None and len(supply_zone_df) > 0:
+    # #         df_supply_and_demand_final = pd.concat([df_supply_and_demand_final, supply_zone_df], axis=0, ignore_index=True)
+        
+    # #     demand_zone_df = demand_zone_detection(data,stock,df_supply_and_demand)
+        
+    # #     if demand_zone_df is not None and len(demand_zone_df) > 0:
+    # #         df_supply_and_demand_final = pd.concat([df_supply_and_demand_final, demand_zone_df], axis=0, ignore_index=True)
+            
+    # #     if len(df_supply_and_demand_final) > 0 :
+    # #         print(df_supply_and_demand_final)
+    # #         df_supply_and_demand_final.reset_index(inplace=True,drop=True)
+            
+
+    # # if len(df_supply_and_demand_final) > 0 :
+    # #     df_supply_and_demand_final["Voided_Time"] = ""
+    # #     df_supply_and_demand_final["Percentage Change"]= 0
+
+    # # for ind in range(df_supply_and_demand_final.shape[0]):
+    # #     stock = df_supply_and_demand_final.loc[ind, "stock"]
+    # #     call_date = df_supply_and_demand_final.loc[ind, "Date"]
+    # #     call_date = pd.to_datetime(call_date).date()
+    # #     print(stock)
+
+    # #     nextWorkingDay = (pd.to_datetime(call_date) + BDay(1)).date()
+    # #     nextWorkingDay = (pd.to_datetime(nextWorkingDay) + BDay(1)).date()
+
+    # #     try:
+    # #         if (nextWorkingDay - pd.to_datetime("today").date()).days <= -1:
+    # #             curr_stock_data = yf.download(stock, start=nextWorkingDay, end=pd.to_datetime("today")+pd.DateOffset(1))
+
+    # #             curr_stock_data = curr_stock_data.reset_index()
+
+    # #             max_zone = max(df_supply_and_demand_final.loc[ind, "zone_1"], df_supply_and_demand_final.loc[ind, "zone_2"])
+    # #             min_zone = min(df_supply_and_demand_final.loc[ind, "zone_1"], df_supply_and_demand_final.loc[ind, "zone_2"])
+
+    # #             df_supply_and_demand_final.loc[ind, "fit"] = "Active"
+
+
+    # #             current_close = curr_stock_data.tail(1)["Close"].values[0]
+
+    # #             if (df_supply_and_demand_final.loc[ind, "pattern"] == "Supply Reversal Pattern(R-B-D)") or (
+    # #                     df_supply_and_demand_final.loc[ind, "pattern"] == "Supply Continuous Pattern(D-B-D)"):
+
+    # #                 df_supply_and_demand_final.loc[ind, "Percentage Change"] = round(
+    # #                     (((df_supply_and_demand_final.loc[ind, "zone_1"] - current_close) / df_supply_and_demand_final.loc[ind, "zone_1"]) * 100), 2)
+
+    # #                 for row_ind in range(curr_stock_data.shape[0]):
+    # #                     if curr_stock_data.loc[row_ind, "Close"] > max_zone:
+    # #                         df_supply_and_demand_final.loc[ind, "fit"] = "Voided"
+    # #                         df_supply_and_demand_final.loc[ind, "Voided_Time"] = curr_stock_data.loc[row_ind, "Date"]
+    # #                         break
+
+    # #             else:
+    # #                 df_supply_and_demand_final.loc[ind, "Percentage Change"] = round(
+    # #                     (((current_close - df_supply_and_demand_final.loc[ind, "zone_1"]) / df_supply_and_demand_final.loc[ind, "zone_1"]) * 100), 2)
+
+    # #                 for row_ind in range(curr_stock_data.shape[0]):
+    # #                     if curr_stock_data.loc[row_ind, "Close"] < min_zone:
+    # #                         df_supply_and_demand_final.loc[ind, "fit"] = "Voided"
+    # #                         df_supply_and_demand_final.loc[ind, "Voided_Time"] = curr_stock_data.loc[row_ind, "Date"]
+    # #                         break
+
+    # #         else:
+    # #             df_supply_and_demand_final.loc[ind, "fit"] = "Active"
+
+    # #     except Exception as e:
+    # #         print("error for :")
+    # #         print(stock)
+
+    # # print(df_supply_and_demand_final)
+
+    # # filtered_df = df_supply_and_demand_final[(df_supply_and_demand_final['strength'] == 'Strong') & 
+    # #                                       (df_supply_and_demand_final['fit'] == 'Active') & 
+    # #                                       (df_supply_and_demand_final['Voided_Time']=="")]
+
+    # # voided_df = df_supply_and_demand_final[(df_supply_and_demand_final['Voided_Time']!="")]
+
+    # # filtered_df = filtered_df.sort_values(by="Date", ascending=False)
+    # # filtered_df.reset_index(inplace=True,drop=True)
+
+    # # voided_df = voided_df.sort_values(by="Date", ascending=False)
+    # # voided_df.reset_index(inplace=True,drop=True)
+
+    # print(df_supply_and_demand_final)
+    # print(filtered_df)
+    # print(voided_df)
+
+    final_data = {
+        "total_stocks": demand_and_supply_zones_daily.replace({pd.NaT: None}).to_dict(),
+        "active_stocks": filtered_df.replace({pd.NaT: None}).to_dict(),
+        "voided_stocks": voided_df.replace({pd.NaT: None}).to_dict()
+    }
+
+     # Create a Pandas DataFrame for the active and voided stocks counts
+    active_count = len(filtered_df)
+    voided_count = len(voided_df)
+    stock_count_df = pd.DataFrame({'fit': ['Active', 'Voided'], 'Count': [active_count, voided_count]})
+
+    # Create a bar chart using Plotly Express
+    fig = px.bar(stock_count_df, x='fit', y='Count', color='fit', 
+                 title='Number of Active and Voided Stocks')
+
+    # Add labels to the axes
+    fig.update_layout(xaxis_title='Stock Status', yaxis_title='Count')
+
+    # Convert the Plotly figure to JSON for rendering in Flask
+    chart_json = fig.to_json()
+
+    return jsonify(final_data=final_data,
+
+                active_stocks_count=total_active_stocks, 
+                voided_stocks_count=total_voided_stocks, 
+                voided_stocks_negative_pct=voided_stocks_with_negative_change, 
+                active_stocks_pct_change_mean=percent_voided_stocks_with_negative_change, 
+                avg_percent_change=avg_percent_change,
+                chart_json=chart_json
+    )
 
 @app.route('/us_market')
 def us_market():

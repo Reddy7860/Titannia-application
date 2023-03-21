@@ -15,6 +15,10 @@
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.js"></script>
     <script src="https://smartapi.angelbroking.com/common/v1.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.js"></script>
+
+
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <style>
@@ -123,10 +127,15 @@
             <th>Strategy</th>
             <th>Stock</th>
             <th>Datetime</th>
+            <th>Value</th>
+            <th>Target</th>
+            <th>Stop Loss</th>
             <th>Buy Probability</th>
             <th>Sell Probability</th>
+            
             <th>Strike Buy Price</th>
             <th>Current Script</th>
+            <th>Conclusion</th>
             <th>Token</th>
             <th>Buy Timestamp</th>
         </tr>
@@ -145,6 +154,9 @@
             <th>Strategy</th>
             <th>Stock</th>
             <th>Datetime</th>
+            <th>Value</th>
+            <th>Target</th>
+            <th>Stop Loss</th>
             <th>Buy Probability</th>
             <th>Sell Probability</th>
             <th>Current Script</th>
@@ -167,6 +179,9 @@
             <th>Strategy</th>
             <th>Stock</th>
             <th>Datetime</th>
+            <th>Value</th>
+            <th>Target</th>
+            <th>Stop Loss</th>
             <th>Buy Probability</th>
             <th>Sell Probability</th>
             <th>Strike Buy Price</th>
@@ -191,6 +206,9 @@
             <th>Strategy</th>
             <th>Stock</th>
             <th>Datetime</th>
+            <th>Value</th>
+            <th>Target</th>
+            <th>Stop Loss</th>
             <th>Buy Probability</th>
             <th>Sell Probability</th>
             <th>Strike Buy Price</th>
@@ -300,7 +318,7 @@
                         "ordering": true,
                         "scrollY": "400px",
                         "scrollCollapse": true,
-                        "searching": false,
+                        "searching": true,
                         "lengthChange": false,
                         "info": false,
                         "language": {
@@ -333,15 +351,156 @@
 
                 }
 
+            //     if (typeof data['paper_data']['open_data'] !== 'undefined') {
 
-            var table2 = document.getElementById("final_open_data-data-table");
+            //     if(Object.keys(data['paper_data']['open_data']).length !== 0){
+            //         // Add the new data to the table
+            //         for (var i = 0; i < Object.keys(data['paper_data']['open_data']).length; i++) {
+            //             var row = table2.insertRow();
+            //             var cell1 = row.insertCell(0);
+            //             var cell2 = row.insertCell(1);
+            //             var cell3 = row.insertCell(2);
+            //             var cell4 = row.insertCell(3);
+            //             var cell5 = row.insertCell(4);
+            //             var cell6 = row.insertCell(5);
+            //             var cell7 = row.insertCell(6);
+            //             var cell8 = row.insertCell(7);
+            //             var cell9 = row.insertCell(8);
+            //             var cell10 = row.insertCell(9);
+
+                        
+
+            //             cell1.innerHTML = data['paper_data']['open_data'][i]['Strategy'];
+            //             cell2.innerHTML = data['paper_data']['open_data'][i]['Stock'];
+            //             cell3.innerHTML = data['paper_data']['open_data'][i]['Datetime'];
+            //             cell4.innerHTML = data['paper_data']['open_data'][i]['buy_probability'];
+            //             cell5.innerHTML = data['paper_data']['open_data'][i]['sell_probability'];
+            //             cell6.innerHTML = data['paper_data']['open_data'][i]['Strike_Buy_Price'];
+            //             cell7.innerHTML = data['paper_data']['open_data'][i]['current_script'];
+            //             cell8.innerHTML = data['paper_data']['open_data'][i]['conclusion'];
+            //             cell9.innerHTML = data['paper_data']['open_data'][i]['token'];
+            //             cell10.innerHTML = data['paper_data']['open_data'][i]['Buy_timestamp'];
+
+            //             // // Append the new rows to the table
+            //             // $("#final_open_data-table-body").append(tableRows);
+
+            //             // // Initialize pagination, sorting, and scrollable features
+            //             // $('#final_open_data-table-body').DataTable({
+            //             //     "paging": true,
+            //             //     "ordering": true,
+            //             //     "scrollY": "400px",
+            //             //     "scrollCollapse": true,
+            //             //     "searching": true,
+            //             //     "lengthChange": false,
+            //             //     "info": false,
+            //             //     "language": {
+            //             //         "emptyTable": "No records found"
+            //             //     }
+            //             // });
+            //         }
+            //     }else{
+            //         var tableBody = document.getElementById("final_open_data-table-body");
+            //           var row = document.createElement("tr");
+            //           var cell = document.createElement("td");
+            //           cell.colSpan = 10;
+            //           cell.innerHTML = "No records found";
+            //           row.appendChild(cell);
+            //           row.style.textAlign = "center";
+            //           tableBody.appendChild(row);
+            //     }
+                
+            // }else{
+            //       var tableBody = document.getElementById("final_open_data-table-body");
+            //       var row = document.createElement("tr");
+            //       var cell = document.createElement("td");
+            //       cell.colSpan = 10;
+            //       cell.innerHTML = "No records found";
+            //       row.appendChild(cell);
+            //       row.style.textAlign = "center";
+            //       tableBody.appendChild(row);
+            // }
+
+            debugger;
+
+            // Clear the existing data in the table
+            $("#final_open_data-table-body").empty();
+
+            if (typeof data["paper_data"]['open_data'] !== 'undefined') {
+
+                if (Object.keys(data["paper_data"]['open_data']).length !== 0) {
+
+                    // Create table rows with the new data
+                    var tableRows = '';
+                    for (var i = 0; i < Object.keys(data["paper_data"]['open_data']).length; i++) {
+                        tableRows += '<tr>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['Strategy']+ '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['Stock'] + '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['Datetime'] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['open_data'][i]['Value'] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['open_data'][i]['Target'] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['open_data'][i]['StopLoss'] + '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['buy_probability']+ '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['sell_probability'] + '</td>';
+                        
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['Strike_Buy_Price']+ '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['current_script'] + '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['conclusion'] + '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['token'] + '</td>';
+                        tableRows += '<td>' + data['paper_data']['open_data'][i]['Buy_timestamp'] + '</td>';
+                        tableRows += '</tr>';
+                    }
+
+                    // Append the new rows to the table
+                    $("#final_open_data-table-body").append(tableRows);
+
+                    // Initialize pagination, sorting, and scrollable features
+                    $('#final_open_data-table-body').DataTable({
+                        "paging": true,
+                        "ordering": true,
+                        "scrollY": "400px",
+                        "scrollCollapse": true,
+                        "searching": true,
+                        "lengthChange": false,
+                        "info": false,
+                        "language": {
+                            "emptyTable": "No records found"
+                        }
+                    });
+
+                } else {
+                    // Display a "No records found" message
+                    var tableBody = document.getElementById("final_open_data-table-body");
+                    var row = document.createElement("tr");
+                    var cell = document.createElement("td");
+                    cell.colSpan = 10;
+                    cell.innerHTML = "No records found";
+                    row.appendChild(cell);
+                    row.style.textAlign = "center";
+                    tableBody.appendChild(row);
+                }
+
+            } else {
+                // Display a "No records found" message
+                 var tableBody = document.getElementById("final_open_data-table-body");
+                    var row = document.createElement("tr");
+                    var cell = document.createElement("td");
+                    cell.colSpan = 10;
+                    cell.innerHTML = "No records found";
+                    row.appendChild(cell);
+                    row.style.textAlign = "center";
+                    tableBody.appendChild(row);
+
+                }
+
+
+            // var table2 = document.getElementById("final_open_data-data-table");
             var table3 = document.getElementById("final_completed_orders-data-table");
             var table4 = document.getElementById("final_target_orders-data-table");
             var table5 = document.getElementById("final_stoploss_orders-data-table");
 
-            while (table2.rows.length > 1) {
-                table2.deleteRow(1);
-            }
+            // while (table2.rows.length > 1) {
+            //     table2.deleteRow(1);
+            // }
             while (table3.rows.length > 1) {
                 table3.deleteRow(1);
             }
@@ -366,21 +525,45 @@
                         var cell5 = row.insertCell(4);
                         var cell6 = row.insertCell(5);
                         var cell7 = row.insertCell(6);
-
+                        var cell8 = row.insertCell(7);
+                        var cell9 = row.insertCell(8);
+                        var cell10 = row.insertCell(9);
                         
                         cell1.innerHTML = data["paper_data"]['completed_data'][i]['Strategy'];
                         cell2.innerHTML = data["paper_data"]['completed_data'][i]['Stock'];
                         cell3.innerHTML = data["paper_data"]['completed_data'][i]['Datetime'];
-                        cell4.innerHTML = data["paper_data"]['completed_data'][i]['buy_probability'];
-                        cell5.innerHTML = data["paper_data"]['completed_data'][i]['sell_probability'];
-                        cell6.innerHTML = data["paper_data"]['completed_data'][i]['current_script'];
-                        cell7.innerHTML = data["paper_data"]['completed_data'][i]['PNL'];
+                        cell4.innerHTML = data["paper_data"]['completed_data'][i]['Value'];
+                        cell5.innerHTML = data["paper_data"]['completed_data'][i]['Target'];
+                        cell6.innerHTML = data["paper_data"]['completed_data'][i]['StopLoss'];
+
+                        cell7.innerHTML = data["paper_data"]['completed_data'][i]['buy_probability'];
+                        cell8.innerHTML = data["paper_data"]['completed_data'][i]['sell_probability'];
+                        cell9.innerHTML = data["paper_data"]['completed_data'][i]['current_script'];
+                        cell10.innerHTML = data["paper_data"]['completed_data'][i]['PNL'];
+
+                        // // Append the new rows to the table
+                        // $("#final_completed_orders-table-body").append(tableRows);
+
+                        // // Initialize pagination, sorting, and scrollable features
+                        // $('#final_completed_orders-table-body').DataTable({
+                        //     "paging": true,
+                        //     "ordering": true,
+                        //     "scrollY": "400px",
+                        //     "scrollCollapse": true,
+                        //     "searching": true,
+                        //     "lengthChange": false,
+                        //     "info": false,
+                        //     "language": {
+                        //         "emptyTable": "No records found"
+                        //     }
+                        // });
+
                     }
                 }else{
                     var tableBody = document.getElementById("final_completed_orders-table-body");
                       var row = document.createElement("tr");
                       var cell = document.createElement("td");
-                      cell.colSpan = 7;
+                      cell.colSpan = 10;
                       cell.innerHTML = "No records found";
                       row.appendChild(cell);
                       row.style.textAlign = "center";
@@ -391,7 +574,7 @@
                   var tableBody = document.getElementById("final_completed_orders-table-body");
                   var row = document.createElement("tr");
                   var cell = document.createElement("td");
-                  cell.colSpan = 7;
+                  cell.colSpan = 10;
                   cell.innerHTML = "No records found";
                   row.appendChild(cell);
                   row.style.textAlign = "center";
@@ -400,55 +583,7 @@
 
 
 
-            if (typeof data['paper_data']['open_data'] !== 'undefined') {
-
-                if(Object.keys(data['paper_data']['open_data']).length !== 0){
-                    // Add the new data to the table
-                    for (var i = 0; i < Object.keys(data['paper_data']['open_data']).length; i++) {
-                        var row = table2.insertRow();
-                        var cell1 = row.insertCell(0);
-                        var cell2 = row.insertCell(1);
-                        var cell3 = row.insertCell(2);
-                        var cell4 = row.insertCell(3);
-                        var cell5 = row.insertCell(4);
-                        var cell6 = row.insertCell(5);
-                        var cell7 = row.insertCell(6);
-                        var cell8 = row.insertCell(7);
-                        var cell9 = row.insertCell(8);
-
-                        
-
-                        cell1.innerHTML = data['paper_data']['open_data'][i]['Strategy'];
-                        cell2.innerHTML = data['paper_data']['open_data'][i]['Stock'];
-                        cell3.innerHTML = data['paper_data']['open_data'][i]['Datetime'];
-                        cell4.innerHTML = data['paper_data']['open_data'][i]['buy_probability'];
-                        cell5.innerHTML = data['paper_data']['open_data'][i]['sell_probability'];
-                        cell6.innerHTML = data['paper_data']['open_data'][i]['Strike_Buy_Price'];
-                        cell7.innerHTML = data['paper_data']['open_data'][i]['current_script'];
-                        cell8.innerHTML = data['paper_data']['open_data'][i]['token'];
-                        cell9.innerHTML = data['paper_data']['open_data'][i]['Buy_timestamp'];
-                    }
-                }else{
-                    var tableBody = document.getElementById("final_open_data-table-body");
-                      var row = document.createElement("tr");
-                      var cell = document.createElement("td");
-                      cell.colSpan = 9;
-                      cell.innerHTML = "No records found";
-                      row.appendChild(cell);
-                      row.style.textAlign = "center";
-                      tableBody.appendChild(row);
-                }
-                
-            }else{
-                  var tableBody = document.getElementById("final_open_data-table-body");
-                  var row = document.createElement("tr");
-                  var cell = document.createElement("td");
-                  cell.colSpan = 9;
-                  cell.innerHTML = "No records found";
-                  row.appendChild(cell);
-                  row.style.textAlign = "center";
-                  tableBody.appendChild(row);
-            }
+            
 
             if (typeof data['paper_data']['target_data'] !== 'undefined') {
 
@@ -465,18 +600,42 @@
                         var cell7 = row.insertCell(6);
                         var cell8 = row.insertCell(7);
                         var cell9 = row.insertCell(8);
+                        var cell10 = row.insertCell(9);
+                        var cell11 = row.insertCell(10);
+                        var cell12 = row.insertCell(11);
 
                         
 
                         cell1.innerHTML = data['paper_data']['target_data'][i]['Strategy'];
                         cell2.innerHTML = data['paper_data']['target_data'][i]['Stock'];
                         cell3.innerHTML = data['paper_data']['target_data'][i]['Datetime'];
-                        cell4.innerHTML = data['paper_data']['target_data'][i]['buy_probability'];
-                        cell5.innerHTML = data['paper_data']['target_data'][i]['sell_probability'];
-                        cell6.innerHTML = data['paper_data']['target_data'][i]['Strike_Buy_Price'];
-                        cell7.innerHTML = data['paper_data']['target_data'][i]['current_script'];
-                        cell8.innerHTML = data['paper_data']['target_data'][i]['token'];
-                        cell9.innerHTML = data['paper_data']['target_data'][i]['Buy_timestamp'];
+                        cell4.innerHTML = data["paper_data"]['target_data'][i]['Value'];
+                        cell5.innerHTML = data["paper_data"]['target_data'][i]['Target'];
+                        cell6.innerHTML = data["paper_data"]['target_data'][i]['StopLoss'];
+
+                        cell7.innerHTML = data['paper_data']['target_data'][i]['buy_probability'];
+                        cell8.innerHTML = data['paper_data']['target_data'][i]['sell_probability'];
+                        cell9.innerHTML = data['paper_data']['target_data'][i]['Strike_Buy_Price'];
+                        cell10.innerHTML = data['paper_data']['target_data'][i]['current_script'];
+                        cell11.innerHTML = data['paper_data']['target_data'][i]['token'];
+                        cell12.innerHTML = data['paper_data']['target_data'][i]['Buy_timestamp'];
+
+                        // // Append the new rows to the table
+                        // $('#final_target_orders-table-body').append(tableRows);
+
+                        // // Initialize pagination, sorting, and scrollable features
+                        // $('#final_target_orders-table-body').DataTable({
+                        //     "paging": true,
+                        //     "ordering": true,
+                        //     "scrollY": "400px",
+                        //     "scrollCollapse": true,
+                        //     "searching": true,
+                        //     "lengthChange": false,
+                        //     "info": false,
+                        //     "language": {
+                        //         "emptyTable": "No records found"
+                        //     }
+                        // });
                     }
                 }else{
                     var tableBody = document.getElementById("final_target_orders-table-body");
@@ -515,24 +674,48 @@
                         var cell7 = row.insertCell(6);
                         var cell8 = row.insertCell(7);
                         var cell9 = row.insertCell(8);
+                        var cell10 = row.insertCell(9);
+                        var cell11 = row.insertCell(10);
+                        var cell12 = row.insertCell(11);
 
                         
 
                         cell1.innerHTML = data['paper_data']['stoploss_data'][i]['Strategy'];
                         cell2.innerHTML = data['paper_data']['stoploss_data'][i]['Stock'];
                         cell3.innerHTML = data['paper_data']['stoploss_data'][i]['Datetime'];
-                        cell4.innerHTML = data['paper_data']['stoploss_data'][i]['buy_probability'];
-                        cell5.innerHTML = data['paper_data']['stoploss_data'][i]['sell_probability'];
-                        cell6.innerHTML = data['paper_data']['stoploss_data'][i]['Strike_Buy_Price'];
-                        cell7.innerHTML = data['paper_data']['stoploss_data'][i]['current_script'];
-                        cell8.innerHTML = data['paper_data']['stoploss_data'][i]['token'];
-                        cell9.innerHTML = data['paper_data']['stoploss_data'][i]['Buy_timestamp'];
+                        cell4.innerHTML = data["paper_data"]['stoploss_data'][i]['Value'];
+                        cell5.innerHTML = data["paper_data"]['stoploss_data'][i]['Target'];
+                        cell6.innerHTML = data["paper_data"]['stoploss_data'][i]['StopLoss'];
+
+                        cell7.innerHTML = data['paper_data']['stoploss_data'][i]['buy_probability'];
+                        cell8.innerHTML = data['paper_data']['stoploss_data'][i]['sell_probability'];
+                        cell9.innerHTML = data['paper_data']['stoploss_data'][i]['Strike_Buy_Price'];
+                        cell10.innerHTML = data['paper_data']['stoploss_data'][i]['current_script'];
+                        cell11.innerHTML = data['paper_data']['stoploss_data'][i]['token'];
+                        cell12.innerHTML = data['paper_data']['stoploss_data'][i]['Buy_timestamp'];
+
+                        // // Append the new rows to the table
+                        // $("#final_stoploss_orders-table-body").append(tableRows);
+
+                        // // Initialize pagination, sorting, and scrollable features
+                        // $('#final_stoploss_orders-table-body').DataTable({
+                        //     "paging": true,
+                        //     "ordering": true,
+                        //     "scrollY": "400px",
+                        //     "scrollCollapse": true,
+                        //     "searching": true,
+                        //     "lengthChange": false,
+                        //     "info": false,
+                        //     "language": {
+                        //         "emptyTable": "No records found"
+                        //     }
+                        // });
                     }
                 }else{
                     var tableBody = document.getElementById("final_stoploss_orders-table-body");
                       var row = document.createElement("tr");
                       var cell = document.createElement("td");
-                      cell.colSpan = 9;
+                      cell.colSpan = 12;
                       cell.innerHTML = "No records found";
                       row.appendChild(cell);
                       row.style.textAlign = "center";
@@ -543,7 +726,7 @@
                   var tableBody = document.getElementById("final_stoploss_orders-table-body");
                   var row = document.createElement("tr");
                   var cell = document.createElement("td");
-                  cell.colSpan = 9;
+                  cell.colSpan = 12;
                   cell.innerHTML = "No records found";
                   row.appendChild(cell);
                   row.style.textAlign = "center";
@@ -558,6 +741,8 @@
 
                Plotly.newPlot("chart", obj.data, obj.layout);
             }
+
+
 
 
         });

@@ -26,8 +26,18 @@ from nsepy import get_history
 import yfinance as yf
 from bs4 import BeautifulSoup
 from pandas.tseries.offsets import BDay
+from nsetools import Nse
+import ssl 
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 app = Flask(__name__)
+nse = Nse()
 
 # Load environment variables from .env file
 load_dotenv()
@@ -158,6 +168,14 @@ def company_overview():
 
         NSE_Tickers = ['RELIANCE.NS','SBIN.NS','WIPRO.NS','HDFCBANK.NS']
         return render_template('company_overview.html',tickers=NSE_Tickers)
+
+@app.route('/us_company_overview',methods=['GET', 'POST'])
+def us_company_overview():
+    NSE_List = pd.read_csv("US_30_Stocks.csv")
+    NSE_Tickers = NSE_List['Yahoo Symbol'].tolist()
+
+    # NSE_Tickers = ['RELIANCE.NS','SBIN.NS','WIPRO.NS','HDFCBANK.NS']
+    return render_template('company_overview.html',tickers=NSE_Tickers)
 
 # Handle the AJAX request and return the updated infobox content
 @app.route("/get_infobox_data", methods=['POST'])
@@ -625,6 +643,520 @@ def get_infobox_data():
     else:
         return jsonify(tabName=tabName)
 
+# Handle the AJAX request and return the updated infobox content
+@app.route("/us_get_infobox_data", methods=['POST'])
+def us_get_infobox_data():
+
+    tabName = request.get_json()["tabName"]
+    print(tabName)
+    selected_stock = request.get_json()["selected_stock"]
+    print(selected_stock)
+
+    if tabName == "#valuation":
+
+        symbol = selected_stock
+        ticker = yf.Ticker(symbol)
+        overview = ticker.info
+        
+        data = {
+            'about': overview['longBusinessSummary'],
+            'ceo': overview['ceo'],
+            'employees': overview['fullTimeEmployees'],
+            'headquarters': overview['city'] + ', ' + overview['state'],
+            'founded': overview['founded'],
+            'market_cap': overview['marketCap'],
+            'pe_ratio': overview['trailingPE'],
+            'dividend_yield': overview['dividendYield'] * 100,
+            'avg_volume': overview['averageVolume'],
+            'high_today': overview['regularMarketDayHigh'],
+            'low_today': overview['regularMarketDayLow'],
+            'open_price': overview['regularMarketOpen'],
+            'volume': overview['regularMarketVolume'],
+            '52_week_high': overview['fiftyTwoWeekHigh'],
+            '52_week_low': overview['fiftyTwoWeekLow']
+        }
+        
+        return jsonify(data,tabName=tabName)
+
+        # money_control_data = pd.read_csv("Money_Control_Tickers.csv")
+        # row_number = np.where(money_control_data['Company'].str.contains(selected_stock))[0][0]
+        # money_control_url = "https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/" + money_control_data.iloc[row_number, 4]
+        # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+        # response = requests.get(money_control_url, headers=headers)
+        # stocks_valuation = response.json()
+        # return jsonify(valuation_info=stocks_valuation,tabName=tabName)
+    elif tabName == "#price_and_returns":
+        data = yf.download(selected_stock, start="2022-03-01", end="2023-03-01")
+        # Compute moving averages
+        data['mm10'] = data['Close'].rolling(window=10).mean()
+        data['mm30'] = data['Close'].rolling(window=30).mean()
+
+        data = data.round(2)
+        # Create a subplot with two y-axes
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        # Add volume bar chart
+        fig.add_trace(
+            go.Bar(x=data.index, y=data['Volume'], name="Volume"),
+            secondary_y=False,
+        )
+
+        # Add price line chart
+        fig.add_trace(
+            go.Scatter(x=data.index, y=data['Adj Close'], name="Price"),
+            secondary_y=True,
+        )
+
+        # Add moving averages line charts
+        fig.add_trace(
+            go.Scatter(x=data.index, y=data['mm10'], name="Weekly Moving Average"),
+            secondary_y=True,
+        )
+
+        fig.add_trace(
+            go.Scatter(x=data.index, y=data['mm30'], name="Monthly Moving Average"),
+            secondary_y=True,
+        )
+
+        # Update layout and axis titles
+        fig.update_layout(
+            title=str(selected_stock) + ' Stock Data',
+            xaxis_title="Date",
+            yaxis_title="Volume",
+            yaxis2_title="Price",
+            legend=dict(x=0, y=1.1, orientation='h')
+        )
+        # Convert the figure to HTML and return as a JSON object
+        html_fig = pio.to_html(fig, full_html=False)
+
+        # Create the stock returns plot
+        stock_ret = pd.DataFrame({'Date': data.index[1:], 'Adjusted': (data['Close'].apply(lambda x: math.log(x)) - data['Close'].apply(lambda x: math.log(x)).shift(1)).values[1:]})
+        fig2 = go.Figure(data=[go.Scatter(x=stock_ret['Date'], y=stock_ret['Adjusted'])])
+        fig2.update_layout(title=str(selected_stock)+" Returns", xaxis_title="Date", yaxis_title="Returns")
+        html_fig2 = pio.to_html(fig2, full_html=False)
+
+        return jsonify(html= html_fig, stock_returns=html_fig2,tabName=tabName)
+    elif tabName == "#historic_data":
+        # Fetch data from Yahoo Finance and remove missing values
+        ticker = selected_stock
+        start_date = "2022-03-03"
+        end_date = "2023-03-01"
+        df = yf.download(ticker, start=start_date, end=end_date)
+        df.dropna(inplace=True)
+        df = df.reset_index()
+        df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+        data = df
+        # calculate the candle body and shadows
+        data['body'] = abs(data['Close'] - data['Open'])
+        data['upper_shadow'] = data[['Open', 'Close']].max(axis=1) - data['High']
+        data['lower_shadow'] = data['Low'] - data[['Open', 'Close']].min(axis=1)
+        data['Target'] = ''
+        data['Entry'] = ''
+        data['Stoploss'] = ''
+        data['Signal'] = ''
+        data['pattern'] = ''
+
+        # identify patterns
+        for i in range(len(data)):
+            if i < 2:
+                continue
+
+            # Bullish Engulfing Pattern
+            if data.loc[i-1, 'Close'] < data.loc[i-1, 'Open'] and data.loc[i, 'Close'] > data.loc[i, 'Open'] and data.loc[i, 'Close'] > data.loc[i-1, 'Open'] and data.loc[i, 'Open'] < data.loc[i-1, 'Close']:
+                data.loc[i,"pattern"] = "Bullish Engulfing"
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price + (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'Low']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Buy'
+
+            # Bearish Engulfing Pattern
+            elif data.loc[i-1, 'Close'] > data.loc[i-1, 'Open'] and data.loc[i, 'Close'] < data.loc[i, 'Open'] and data.loc[i, 'Close'] < data.loc[i-1, 'Open'] and data.loc[i, 'Open'] > data.loc[i-1, 'Close']:
+                data.loc[i,"pattern"] = "Bearish Engulfing"
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price - (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'High']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Sell'
+
+            # Doji
+            elif data.loc[i, 'body'] == 0:
+                data.loc[i,"pattern"] = "Doji"
+                # Calculate target and stoploss for the pattern
+                if data.loc[i-1, 'Close'] > data.loc[i-1, 'Open']:
+                    data.loc[i, 'Signal'] = 'Sell'
+                    entry_price = data.loc[i, 'Open']
+                    target_price = entry_price - data.loc[i, 'lower_shadow']
+                    stoploss_price = entry_price + data.loc[i, 'upper_shadow']
+                else:
+                    data.loc[i, 'Signal'] = 'Buy'
+                    entry_price = data.loc[i, 'Open']
+                    target_price = entry_price + data.loc[i, 'upper_shadow']
+                    stoploss_price = entry_price - data.loc[i, 'lower_shadow']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+
+            # Piercing Pattern
+            elif data.loc[i-1, 'Close'] < data.loc[i-1, 'Open'] and data.loc[i, 'Close'] > ((data.loc[i-1, 'Close'] + data.loc[i-1, 'Open']) / 2) and data.loc[i, 'Open'] < data.loc[i-1, 'Close']:
+                data.loc[i,"pattern"] = "Piercing Pattern"
+                # Calculate target, stoploss, and signal for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price + (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'Low']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Buy'
+
+            # Dark Cloud Cover
+            elif data.loc[i-1, 'Close'] > data.loc[i-1, 'Open'] and data.loc[i, 'Open'] > ((data.loc[i-1, 'Close'] + data.loc[i-1, 'Open']) / 2) and data.loc[i, 'Close'] < data.loc[i-1, 'Open']:
+                data.loc[i,"pattern"] = "Dark Cloud Cover"
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price - (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'High']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Sell'
+        
+            # Bullish Harami
+            elif (data.loc[i-1, 'Close'] > data.loc[i-1, 'Open']) and (data.loc[i, 'Open'] > data.loc[i-1, 'Close']) and (data.loc[i, 'Close'] < data.loc[i-1, 'Open']) and (data.loc[i, 'Close'] > data.loc[i, 'Open']):
+                data.loc[i, 'pattern'] = 'Bullish Harami'
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price + (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'Low']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Buy'
+        
+      
+            # Bearish Harami
+            elif (data.loc[i-1, 'Close'] < data.loc[i-1, 'Open']) and (data.loc[i, 'Open'] < data.loc[i-1, 'Close']) and (data.loc[i, 'Close'] > data.loc[i-1, 'Open']) and (data.loc[i, 'Close'] < data.loc[i, 'Open']):
+                data.loc[i, 'pattern'] = 'Bearish Harami'
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price - (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'High']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Sell'
+    
+            # Morning Star
+            elif i >= 2 and data.loc[i-2, 'Close'] > data.loc[i-2, 'Open'] and abs(data.loc[i-1, 'Close'] - data.loc[i-1, 'Open']) < abs(data.loc[i-2, 'Close'] - data.loc[i-2, 'Open']) and data.loc[i, 'Close'] > data.loc[i-1, 'Close'] and data.loc[i, 'Open'] > data.loc[i-1, 'Close'] and data.loc[i, 'Close'] < data.loc[i-1, 'Open']:
+                data.loc[i, 'pattern'] = 'Morning Star'
+                # Calculate target and stoploss for the pattern
+                entry_price = data.loc[i, 'Close']
+                target_price = entry_price + (2 * data.loc[i, 'body'])
+                stoploss_price = data.loc[i-1, 'Low']
+                data.loc[i, 'Target'] = target_price
+                data.loc[i, 'Entry'] = entry_price
+                data.loc[i, 'Stoploss'] = stoploss_price
+                data.loc[i, 'Signal'] = 'Buy'
+
+            # Evening Star
+            elif i >= 2 and data.loc[i-2, 'Close'] < data.loc[i-2, 'Open'] and abs(data.loc[i-1, 'Close'] - data.loc[i-1, 'Open']) < abs(data.loc[i-2, 'Close'] - data.loc[i-2, 'Open']) and data.loc[i, 'Close'] < data.loc[i-1, 'Open'] and data.loc[i, 'Open'] < data.loc[i-1, 'Open'] and data.loc[i, 'Close'] > data.loc[i-1, 'Close']:
+                data.loc[i, 'pattern'] = 'Evening Star'
+                data.loc[i, 'Target'] = data.loc[i, 'Close'] - (data.loc[i, 'High'] - data.loc[i, 'Low'])
+                data.loc[i, 'Entry'] = data.loc[i, 'Close']
+                data.loc[i, 'Stoploss'] = data.loc[i, 'High']
+                data.loc[i, 'Signal'] = 'Sell'
+
+        starttime = int(datetime.strptime("2019-03-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+        endtime = int(datetime.strptime("2023-03-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+
+        mny_selected_stock = selected_stock.replace('.NS', '');
+
+        money_control_url = f"https://priceapi.moneycontrol.com/techCharts/techChartController/history?symbol={mny_selected_stock}&resolution=5&from={starttime}&to={endtime}"
+
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+
+        response = requests.get(money_control_url, headers=headers)
+        response_data = response.json()
+
+        stock_timestamp = response_data['t']
+        Close = response_data['c']
+        High = response_data['h']
+        Low = response_data['l']
+        Open = response_data['o']
+        Volume = response_data['v']
+
+        final_data = pd.DataFrame({'V1': pd.to_datetime(stock_timestamp, unit='s'),
+                           'Close': Close,
+                           'High': High,
+                           'Low': Low,
+                           'Open': Open,
+                           'Volume': Volume})
+
+        final_data.columns = ["Datetime", "Close", "High", "Low", "Open", "Volume"]
+
+
+        # add 5:30 time to Datetime column
+        final_data['Datetime'] = final_data['Datetime'] + pd.to_timedelta('5:30:00')
+
+        final_data['Close'] = final_data['Close'].astype(float).astype(int)
+        final_data['High'] = final_data['High'].astype(float).astype(int)
+        final_data['Low'] = final_data['Low'].astype(float).astype(int)
+        final_data['Open'] = final_data['Open'].astype(float).astype(int)
+        final_data['Volume'] = final_data['Volume'].astype(float).astype(int)
+
+        filtered_patterns = data[data['pattern'] != '']
+
+        filtered_patterns.reset_index(inplace=True,drop=True)
+
+        # function to check if target or stoploss has been hit
+        def check_signal_hit(row):
+            # find the corresponding 5-minute interval in final_data
+            signal_datetime = pd.to_datetime(row['Date']) + pd.DateOffset(days=1)
+            interval_start = signal_datetime.replace(hour=9, minute=15)
+        #     print(interval_start)
+        #     interval_end = signal_datetime.replace(hour=15, minute=30)
+        #     mask = (final_data['Datetime'] >= interval_start) & (final_data['Datetime'] <= interval_end)
+            mask = (final_data['Datetime'] >= interval_start)
+            interval_data = final_data.loc[mask]
+        #     print(interval_data)
+            # check if the target or stoploss was hit
+            if row['Signal'] == 'Buy':
+                hit_target = interval_data['High'].max() >= row['Target']
+                hit_stoploss = interval_data['Low'].min() <= row['Stoploss']
+                if hit_target:
+                    hit_timestamp = interval_data.loc[interval_data['High'] >= row['Target'], 'Datetime'].min()
+                    hit_price = int(interval_data.loc[interval_data['Datetime'] == hit_timestamp,'High'])
+                    return pd.Series({'Hit Timestamp': hit_timestamp, 'Hit Price': hit_price})
+                elif hit_stoploss:
+                    hit_timestamp = interval_data.loc[interval_data['Low'] <= row['Stoploss'], 'Datetime'].min()
+                    hit_price = int(interval_data.loc[interval_data['Datetime'] == hit_timestamp,'Low'])
+                    return pd.Series({'Hit Timestamp': hit_timestamp, 'Hit Price': hit_price})
+                else:
+                    return pd.Series({'Hit Timestamp': pd.NaT, 'Hit Price': pd.NaT})
+            else:
+                hit_target = interval_data['Low'].min() <= row['Target']
+                hit_stoploss = interval_data['High'].max() >= row['Stoploss']
+                if hit_target:
+                    hit_timestamp = interval_data.loc[interval_data['Low'] <= row['Target'], 'Datetime'].min()
+                    hit_price = int(interval_data.loc[interval_data['Datetime'] == hit_timestamp,'Low'])
+                    return pd.Series({'Hit Timestamp': hit_timestamp, 'Hit Price': hit_price})
+                elif hit_stoploss:
+                    hit_timestamp = interval_data.loc[interval_data['High'] >= row['Stoploss'], 'Datetime'].min()
+                    hit_price = int(interval_data.loc[interval_data['Datetime'] == hit_timestamp,'High'])
+                    return pd.Series({'Hit Timestamp': hit_timestamp, 'Hit Price': hit_price})
+                else:
+                    return pd.Series({'Hit Timestamp': pd.NaT, 'Hit Price': pd.NaT})
+            
+
+        # apply the check_signal_hit function to each row of data
+        filtered_patterns[['Hit Timestamp', 'Hit Price']] = filtered_patterns.apply(check_signal_hit, axis=1)
+
+        # calculate profit or loss
+        filtered_patterns['Profit/Loss'] = np.nan
+
+        # iterate over the rows of filtered_patterns
+        for i, row in filtered_patterns.iterrows():
+            # check if the target or stoploss was hit
+            if pd.notnull(row['Hit Timestamp']):
+                if row['Signal'] == 'Buy':
+                    pl = row['Hit Price'] - row['Entry']
+                else:
+                    pl = row['Entry'] - row['Hit Price']
+                filtered_patterns.at[i, 'Profit/Loss'] = pl
+
+        # create candlestick chart
+        candlestick = go.Candlestick(x=data['Date'], open=data['Open'], high=data['High'], low=data['Low'], close=data['Close'])
+
+        # add pattern text to chart
+        annotations = []
+        for i in range(len(filtered_patterns)):
+            if filtered_patterns.loc[i, 'pattern'] != '':
+                annotations.append(dict(x=filtered_patterns.loc[i, 'Date'], y=filtered_patterns.loc[i, 'Low'] - (filtered_patterns.loc[i, 'Low']*0.13), xref='x', yref='y', text=filtered_patterns.loc[i, 'pattern'], showarrow=True, font=dict(size=10, color='black'), align='center', textangle=-90))
+
+        # create scatter plot with text
+        scatter = go.Scatter(
+            x=filtered_patterns['Date'],
+            y=filtered_patterns['Close'],
+            text=("Target: " + filtered_patterns['Target'].astype(str) + "<br>"
+              "Entry: " + filtered_patterns['Entry'].astype(str) + "<br>"
+              "Stoploss: " + filtered_patterns['Stoploss'].astype(str) + "<br>"
+              "Signal: " + filtered_patterns['Signal'].astype(str) + "<br>"
+              "Pattern: " + filtered_patterns['pattern'].astype(str) + "<br>"
+              "Hit Timestamp: " + filtered_patterns['Hit Timestamp'].astype(str) + "<br>"
+              "Hit Price: " + filtered_patterns['Hit Price'].astype(str) + "<br>"
+              "Profit/Loss: " + filtered_patterns['Profit/Loss'].astype(str)),
+            hoverinfo='text'
+        )
+
+        # combine scatter and candlestick chart
+        chart_data = [candlestick, scatter]
+
+        layout = {
+            "title": "Stock Price Chart",
+            "xaxis": {
+                "rangebreaks": [{"bounds": ["sat", "mon"]}],
+                "rangeslider": {"visible": False}
+            },
+            'yaxis': {'fixedrange': False}
+        }
+
+        fig = go.Figure(data=chart_data, layout=layout)
+
+        fig.update_layout(annotations=annotations)
+
+        # Convert the figure to HTML and return as a JSON object
+        html_fig = pio.to_html(fig, full_html=False)
+
+        # Return the HTML plot as a JSON object
+        return jsonify(chart=html_fig,tabName=tabName)
+
+    elif tabName == "#news_data":
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+
+        money_control_new_url = "https://www.moneycontrol.com/india/stockpricequote/refineries/relianceindustries/RI"
+
+
+        market_financials = requests.get(money_control_new_url, headers=headers).text
+
+        soup = BeautifulSoup(market_financials, 'html.parser')
+
+        data = soup.select_one('#news')
+
+        # Extract all the data from anchor tags
+        anchors = data.find_all('a')
+
+        # Create an empty list to store the data
+        final_data = []
+
+        # Loop through each anchor tag and extract the link and title
+        for a in anchors:
+            link = a.get('href')
+            title = a.get('title')
+            if title:
+                print(title)
+            else:
+                img = a.find('img')
+                if img:
+                    title = img.get('alt')
+                else:
+                    print('No title or alt text found.')
+            if link and title:
+                # Append the link and title to the data list
+                final_data.append([link, title])
+
+        money_control_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
+
+        # apply functions to headline column
+        # money_control_news_data['entities'] = money_control_news_data['Headline'].apply(lambda x: extract_entities(x))
+        # money_control_news_data['spacy_sentiment'], money_control_news_data['spacy_polarity'], money_control_news_data['spacy_pos_words'], money_control_news_data['spacy_neg_words'] = zip(*money_control_news_data['Headline'].apply(lambda x: get_sentiment(x, nlp=spacy.load("en_core_web_sm"))))
+        # money_control_news_data['nltk_sentiment'], money_control_news_data['nltk_neg'], money_control_news_data['nltk_neu'], money_control_news_data['nltk_pos'], money_control_news_data['nltk_compound'] = zip(*money_control_news_data['Headline'].apply(lambda x: get_nltk_sentiment(x)))
+        # # money_control_news_data['amazon_sentiment_scores'] = money_control_news_data['Headline'].apply(lambda x: get_amazon_sentiment_scores(x))
+        # # print(df)
+        # money_control_news_data['finbert_sentiment'] = get_finbert_sentiments(money_control_news_data['Headline'].tolist())
+
+
+        # nlp = spacy.load("en_core_web_sm")
+
+        # text = "This is a positive sentence"
+        # spacy_sentiment, sentiment, spacy_positive_words, spacy_negative_words = get_sentiment(text, nlp)
+
+        # print(spacy_sentiment)
+        # print(sentiment)
+        # print(spacy_positive_words)
+        # print(spacy_negative_words)
+
+        # text = "This is a positive sentence"
+        # sentiment = get_nltk_sentiment(text)
+        # # Convert the list of sentiment scores to a dictionary
+        # sentiment_dict = {'sentiment': sentiment[0], 'neutral': sentiment[1], 'positive': sentiment[2], 'compound': sentiment[3]}
+
+        # print(sentiment_dict)
+
+        # sentiment_scores = get_amazon_sentiment_scores(text)
+
+        # print(sentiment_scores)
+
+        # sentiment = get_finbert_sentiments(text)
+        # print(sentiment)
+
+        
+
+        economic_times_url = "https://economictimes.indiatimes.com/reliance-industries-ltd/stocks/companyid-13215.cms"
+        market_financials = requests.get(economic_times_url, headers=headers).text
+        soup = BeautifulSoup(market_financials, 'html.parser')
+        stories = soup.find_all('div', {'class': 'news_sec'})
+
+        final_data = []
+
+        for item in stories:
+            links = item.find_all('a')
+            for link in links:
+                href = link['href']
+                title = link.text.strip()
+                if '.cms' in href:
+                    print(title)
+                    final_data.append(["https://economictimes.indiatimes.com"+str(href), title])
+
+        economic_times_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
+
+
+        final_data = []
+        live_mint_new_url = "https://www.livemint.com/market/market-stats/stocks-reliance-industries-share-price-nse-bse-s0003018"
+        market_financials = requests.get(live_mint_new_url, headers=headers).text
+        soup = BeautifulSoup(market_financials, 'html.parser')
+        soup = soup.select_one('#stock_news')
+        stories = soup.find_all('div', {'class': 'headlineSec'})
+        for story in stories:
+            link = story.find('h2', {'class': 'headline'})
+        #     print(link)
+            if link is not None:
+                link = story.find('a')
+                href = link['href']
+                title = link.text.strip()
+                final_data.append(["https://www.livemint.com"+str(href), title])
+                print('Href:', href)
+                print('Title:', title)
+        live_mint_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
+
+        news_data = {"money_control_news": money_control_news_data.to_dict(),
+                    "economic_times_news_data":economic_times_news_data.to_dict(),
+                       "live_mint_news_data":live_mint_news_data.to_dict()}
+
+        return jsonify(news_data=news_data,tabName=tabName)
+    else:
+        return jsonify(tabName=tabName)
+
+@app.route('/market_analysis',methods=['GET', 'POST'])
+def market_analysis():
+
+    symbols = {
+       'Overall': 'Overall',
+       'NIFTY IT': 'Nifty IT',
+       'NIFTY PHARMA': 'Nifty Pharma',
+       'NIFTY AUTO': 'Nifty Auto',
+       'NIFTY REALTY': 'Nifty Realty',
+       'NIFTY 50': 'Nifty 50',
+       'NIFTY BANK': 'Bank Nifty',
+       'NIFTY ENERGY': 'Nifty Energy',
+       'NIFTY FMCG': 'Nifty FMCG',
+       'NIFTY MEDIA': 'Nifty Media'
+    }
+    current_date = datetime.now(timezone("Asia/Kolkata")).strftime("%Y-%m-%d")
+    top_gainers = pd.DataFrame(nse.get_top_gainers())
+    top_losers = pd.DataFrame(nse.get_top_losers())
+    top_fno_gainers = pd.DataFrame(nse.get_top_fno_gainers())
+    top_fno_losers = pd.DataFrame(nse.get_top_fno_losers())
+    return render_template('market_analysis.html', symbols=symbols,current_date=current_date, 
+                           top_gainers=top_gainers, top_losers=top_losers, 
+                           top_fno_gainers=top_fno_gainers, top_fno_losers=top_fno_losers)
+
 @app.route('/orders_preview')
 def orders_preview():
     current_date = datetime.now(timezone("Asia/Kolkata")).strftime("%Y-%m-%d")
@@ -632,6 +1164,50 @@ def orders_preview():
 
 @app.route("/get_data", methods=["POST"])
 def get_data():
+    client_id = request.get_json()["selectedClient"]
+    date_selected = request.get_json()["selectedDate"]
+
+    print(client_id)
+    print(date_selected)
+
+    if date_selected == "":
+        date_selected = '2023-01-19'
+    print(date_selected)
+
+    if client_id != "All":
+        final_position_data, final_open_data, final_stoploss_data, final_completed_orders, final_closed_positions = get_display_data(client_id, date_selected, db)
+        # data = get_display_data(client_id,date_selected)
+
+    # Convert the data to a pandas DataFrame
+    final_position_data = pd.DataFrame.from_dict(final_position_data)
+    final_open_data = pd.DataFrame.from_dict(final_open_data)
+    final_stoploss_data = pd.DataFrame.from_dict(final_stoploss_data)
+    final_completed_orders = pd.DataFrame.from_dict(final_completed_orders)
+    final_closed_positions = pd.DataFrame.from_dict(final_closed_positions)
+
+    # Resample the data to weekly and monthly
+    final_position_data = final_position_data.resample('W-MON').sum()  # weekly data
+    final_open_data = final_open_data.resample('W-MON').sum()  # weekly data
+    final_stoploss_data = final_stoploss_data.resample('W-MON').sum()  # weekly data
+    final_completed_orders = final_completed_orders.resample('W-MON').sum()  # weekly data
+    final_closed_positions = final_closed_positions.resample('W-MON').sum()  # weekly data
+
+    # Convert the data back to dictionaries
+    final_position_data = final_position_data.to_dict()
+    final_open_data = final_open_data.to_dict()
+    final_stoploss_data = final_stoploss_data.to_dict()
+    final_completed_orders = final_completed_orders.to_dict()
+    final_closed_positions = final_closed_positions.to_dict()
+
+    data = {"final_position_data": final_position_data,
+            "final_open_data": final_open_data,
+            "final_stoploss_data": final_stoploss_data,
+            "final_completed_orders": final_completed_orders,
+            "final_closed_positions": final_closed_positions,
+            }
+
+    print(data)
+    return jsonify(data)
     client_id = request.get_json()["selectedClient"]
     date_selected = request.get_json()["selectedDate"]
 
@@ -2221,22 +2797,51 @@ def get_us_candle_stick_data():
 
         if len(open_data) > 0:
             open_data.reset_index(inplace=True,drop=True)
-            open_data = open_data[['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp']]
+            open_data = open_data[['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion']]
         else:
-            open_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp'])
+            open_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion'])
 
         if len(target_data) > 0:
             target_data.reset_index(inplace=True,drop=True)
-            target_data = target_data[['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp']]
+            target_data = target_data[['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion']]
         else:
-            target_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp'])
+            target_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion'])
 
         if len(stoploss_data) > 0:
             stoploss_data.reset_index(inplace=True,drop=True)
-            stoploss_data = stoploss_data[['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp']]
+            stoploss_data = stoploss_data[['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion']]
         else:
-            stoploss_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp'])
+            stoploss_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Datetime','Value','Target','StopLoss','buy_probability', 'sell_probability', 'Strike_Buy_Price','current_script', 'token','Buy_timestamp','conclusion'])
 
+    if len(final_orders_raw_data) > 0:
+        final_orders_raw_data['Datetime'] = pd.to_datetime(final_orders_raw_data['Datetime']) - pd.to_timedelta('5:00:00')
+    if len(completed_data) > 0:
+        completed_data['Datetime'] = pd.to_datetime(completed_data['Datetime']) - pd.to_timedelta('9:00:00')
+    if len(open_data) > 0:
+        open_data['Datetime'] = pd.to_datetime(open_data['Datetime']) - pd.to_timedelta('9:00:00')
+        open_data['Value'] = round(open_data['Value'],2)
+        open_data['Target'] = round(open_data['Target'],2)
+        open_data['StopLoss'] = round(open_data['StopLoss'],2)
+        open_data['buy_probability'] = round(open_data['buy_probability'],2)
+        open_data['sell_probability'] = round(open_data['sell_probability'],2)
+        # open_data['Spot_Price'] = round(open_data['Spot_Price'],2)
+        
+              
+    if len(target_data) > 0:
+        target_data['Datetime'] = pd.to_datetime(target_data['Datetime']) - pd.to_timedelta('9:00:00')
+        target_data['Value'] = round(target_data['Value'],2)
+        target_data['Target'] = round(target_data['Target'],2)
+        target_data['StopLoss'] = round(target_data['StopLoss'],2)
+        target_data['buy_probability'] = round(target_data['buy_probability'],2)
+        target_data['sell_probability'] = round(target_data['sell_probability'],2)
+
+    if len(stoploss_data) > 0:
+        stoploss_data['Datetime'] = pd.to_datetime(stoploss_data['Datetime']) - pd.to_timedelta('9:00:00')
+        stoploss_data['Value'] = round(stoploss_data['Value'],2)
+        stoploss_data['Target'] = round(stoploss_data['Target'],2)
+        stoploss_data['StopLoss'] = round(stoploss_data['StopLoss'],2)
+        stoploss_data['buy_probability'] = round(stoploss_data['buy_probability'],2)
+        stoploss_data['sell_probability'] = round(stoploss_data['sell_probability'],2)
 
     paper_data = {"final_orders_raw_data":final_orders_raw_data.to_dict(),
             "completed_data": completed_data.to_dict(orient='records'),
@@ -2244,6 +2849,7 @@ def get_us_candle_stick_data():
               "target_data": target_data.to_dict(orient='records'),
               "stoploss_data": stoploss_data.to_dict(orient='records'),
               }
+
 
     # Create subplots with 5 rows and 1 column
     fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.1, subplot_titles=("Strategy Signals", "Final Open Data", "Final Completed Data", "Target Placed Data", "Stoploss Placed Data"))
@@ -2277,6 +2883,8 @@ def get_us_candle_stick_data():
 
     # Add the chart JSON to the response
     paper_data["chart"] = json.loads(chart_json)
+
+
 
     # print(paper_data)
 

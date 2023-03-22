@@ -1,0 +1,214 @@
+{% extends "header.html" %}
+
+{% block title %}Market Analysis - My Website{% endblock %}
+
+{% block content %}
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.css"/>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.js"></script>
+
+    <style>
+        .positive-change {
+            color: green;
+        }
+
+        .negative-change {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    {% include "navbar.html" %}
+
+    <h1 class="text-center">Market Analysis</h1>
+
+    <div class="form-group">
+      <label for="symbol-select">Select a symbol:</label>
+      <select class="form-control" id="symbol-select">
+        {% for key, value in symbols.items() %}
+          <option value="{{ key }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4 align="center">Top Gainers</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Series</th>
+                            <th>Open Price</th>
+                            <th>High Price</th>
+                            <th>Low Price</th>
+                            <th>Last Traded Price</th>
+                            <th>Previous Close Price</th>
+                            <th>% Change</th>
+                            <th>Traded Quantity</th>
+                            <th>Turnover (in Lakhs)</th>
+                            <th>Last Corporate Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index, row in top_gainers.iterrows() %}
+                        <tr>
+                            <td>{{ row['symbol'] }}</td>
+                            <td>{{ row['series'] }}</td>
+                            <td>{{ row['openPrice'] }}</td>
+                            <td>{{ row['highPrice'] }}</td>
+                            <td>{{ row['lowPrice'] }}</td>
+                            <td>{{ row['ltp'] }}</td>
+                            <td>{{ row['previousPrice'] }}</td>
+                            <td class="{% if row['netPrice']|float > 0 %}positive-change{% else %}negative-change{% endif %}">{{ row['netPrice'] }}</td>
+                            <td>{{ row['tradedQuantity'] }}</td>
+                            <td>{{ row['turnoverInLakhs'] }}</td>
+                            <td>{{ row['lastCorpAnnouncement'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h4 align="center">Top Losers</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Series</th>
+                            <th>Open Price</th>
+                            <th>High Price</th>
+                            <th>Low Price</th>
+                            <th>Last Traded Price</th>
+                            <th>Previous Close Price</th>
+                            <th>% Change</th>
+                            <th>Traded Quantity</th>
+                            <th>Turnover (in Lakhs)</th>
+                            <th>Last Corporate Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index, row in top_losers.iterrows() %}
+                        <tr>
+                            <td>{{ row['symbol'] }}</td>
+                            <td>{{ row['series'] }}</td>
+                            <td>{{ row['openPrice'] }}</td>
+                            <td>{{ row['highPrice'] }}</td>
+                            <td>{{ row['lowPrice'] }}</td>
+                            <td>{{ row['ltp'] }}</td>
+                            <td>{{ row['previousPrice'] }}</td>
+                            <td class="{% if row['netPrice']|float > 0 %}positive-change{% else %}negative-change{% endif %}">{{ row['netPrice'] }}</td>
+                            <td>{{ row['tradedQuantity'] }}</td>
+                            <td>{{ row['turnoverInLakhs'] }}</td>
+                            <td>{{ row['lastCorpAnnouncement'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4 align="center">Top FNO Gainers</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Symbol</th>
+                            <th>Series</th>
+                            <th>Open Price</th>
+                            <th>High Price</th>
+                            <th>Low Price</th>
+                            <th>LTP</th>
+                            <th>Previous Price</th>
+                            <th>Net Price</th>
+                            <th>Traded Quantity</th>
+                            <th>Turnover (in Lakhs)</th>
+                            <th>Last Corp Announcement Date</th>
+                            <th>Last Corporate Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index, row in top_fno_gainers.iterrows() %}
+                        <tr>
+                            <td>{{ row['symbol'] }}</td>
+                            <td>{{ row['series'] }}</td>
+                            <td>{{ row['openPrice'] }}</td>
+                            <td>{{ row['highPrice'] }}</td>
+                            <td>{{ row['lowPrice'] }}</td>
+                            <td>{{ row['ltp'] }}</td>
+                            <td>{{ row['previousPrice'] }}</td>
+                            <td class="{% if row['netPrice']|float > 0 %}positive-change{% else %}negative-change{% endif %}">{{ row['netPrice'] }}</td>
+                            <td>{{ row['tradedQuantity'] }}</td>
+                            <td>{{ row['turnoverInLakhs'] }}</td>
+                            <td>{{ row['lastCorpAnnouncementDate'] }}</td>
+                            <td>{{ row['lastCorpAnnouncement'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <h4 align="center">Top FNO Losers</h4>
+            <div class="table-responsive">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th>Symbol</th>
+                            <th>Series</th>
+                            <th>Open Price</th>
+                            <th>High Price</th>
+                            <th>Low Price</th>
+                            <th>LTP</th>
+                            <th>Previous Price</th>
+                            <th>Net Price</th>
+                            <th>Traded Quantity</th>
+                            <th>Turnover (in Lakhs)</th>
+                            <th>Last Corp Announcement Date</th>
+                            <th>Last Corporate Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index, row in top_fno_losers.iterrows() %}
+                        <tr>
+                            <td>{{ row['symbol'] }}</td>
+                            <td>{{ row['series'] }}</td>
+                            <td>{{ row['openPrice'] }}</td>
+                            <td>{{ row['highPrice'] }}</td>
+                            <td>{{ row['lowPrice'] }}</td>
+                            <td>{{ row['ltp'] }}</td>
+                            <td>{{ row['previousPrice'] }}</td>
+                            <td class="{% if row['netPrice']|float > 0 %}positive-change{% else %}negative-change{% endif %}">{{ row['netPrice'] }}</td>
+                            <td>{{ row['tradedQuantity'] }}</td>
+                            <td>{{ row['turnoverInLakhs'] }}</td>
+                            <td>{{ row['lastCorpAnnouncementDate'] }}</td>
+                            <td>{{ row['lastCorpAnnouncement'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+</html>
+
+{% endblock %}

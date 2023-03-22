@@ -96,47 +96,47 @@
                 var selected_stock = document.getElementById('stock_input').value;
                 $.ajax({
                     type: "POST",
-                    url: "/get_infobox_data",
+                    url: "/us_get_infobox_data",
                     contentType: "application/json",
                     data: JSON.stringify({ tabName: tabName,selected_stock:selected_stock }),
                     success: function(data) {
                         debugger;
                         if (data.tabName == '#valuation') {
-                            $('#market_cap').find('h4').text('Market Cap ');
-                            $('#market_cap').find('p').text(data['valuation_info']['data']['MKTCAP']);
+                            $('#about').find('h4').text('About ');
+                            $('#about').find('p').text(data['data']['about']);
 
-                            $('#current_pe').find('h4').text('Current P/E ');
-                            $('#current_pe').find('p').text(data['valuation_info']['data']['PECONS']);
+                            // $('#current_pe').find('h4').text('Current P/E ');
+                            // $('#current_pe').find('p').text(data['valuation_info']['data']['PECONS']);
 
-                            $('#industry_pe').find('h4').text('Industry P/E ');
-                            $('#industry_pe').find('p').text(data['valuation_info']['data']['IND_PE']);
+                            // $('#industry_pe').find('h4').text('Industry P/E ');
+                            // $('#industry_pe').find('p').text(data['valuation_info']['data']['IND_PE']);
 
-                            $('#price_book').find('h4').text('Price/Book ');
-                            $('#price_book').find('p').text((data['valuation_info']['data']['pricecurrent']/data['valuation_info']['data']['BV']));
+                            // $('#price_book').find('h4').text('Price/Book ');
+                            // $('#price_book').find('p').text((data['valuation_info']['data']['pricecurrent']/data['valuation_info']['data']['BV']));
 
-                            $('#eps_ttm').find('h4').text('EPS (TTM) ');
-                            $('#eps_ttm').find('p').text(data['valuation_info']['data']['sc_ttm_cons']);
+                            // $('#eps_ttm').find('h4').text('EPS (TTM) ');
+                            // $('#eps_ttm').find('p').text(data['valuation_info']['data']['sc_ttm_cons']);
 
-                            $('#face_value').find('h4').text('Face Value (Rs) ');
-                            $('#face_value').find('p').text(data['valuation_info']['data']['FV']);
+                            // $('#face_value').find('h4').text('Face Value (Rs) ');
+                            // $('#face_value').find('p').text(data['valuation_info']['data']['FV']);
 
-                            $('#divident').find('h4').text('DIVIDEND (%) ');
-                            $('#divident').find('p').text(data['valuation_info']['data']['DYCONS']);
+                            // $('#divident').find('h4').text('DIVIDEND (%) ');
+                            // $('#divident').find('p').text(data['valuation_info']['data']['DYCONS']);
 
-                            $('#put_call').find('h4').text('PUT/CALL ');
-                            $('#put_call').find('p').text(data['valuation_info']['data']['P_C']);
+                            // $('#put_call').find('h4').text('PUT/CALL ');
+                            // $('#put_call').find('p').text(data['valuation_info']['data']['P_C']);
 
-                            $('#deliverables').find('h4').text('DELIVERABLES (%) ');
-                            $('#deliverables').find('p').text(data['valuation_info']['data']['DELV']);
+                            // $('#deliverables').find('h4').text('DELIVERABLES (%) ');
+                            // $('#deliverables').find('p').text(data['valuation_info']['data']['DELV']);
 
-                            $('#delivery_avg_3_days').find('h4').text('3 DAY DELIVERY AVERAGE % ');
-                            $('#delivery_avg_3_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_3day']);
+                            // $('#delivery_avg_3_days').find('h4').text('3 DAY DELIVERY AVERAGE % ');
+                            // $('#delivery_avg_3_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_3day']);
 
-                            $('#delivery_avg_5_days').find('h4').text('5 DAY DELIVERY AVERAGE % ');
-                            $('#delivery_avg_5_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_5day']);
+                            // $('#delivery_avg_5_days').find('h4').text('5 DAY DELIVERY AVERAGE % ');
+                            // $('#delivery_avg_5_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_5day']);
 
-                            $('#delivery_avg_8_days').find('h4').text('8 DAY DELIVERY AVERAGE % ');
-                            $('#delivery_avg_8_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_8day']);
+                            // $('#delivery_avg_8_days').find('h4').text('8 DAY DELIVERY AVERAGE % ');
+                            // $('#delivery_avg_8_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_8day']);
                         }else if ( data.tabName ==  "#price_and_returns"){
 
                             $('#price_chart').html(data.html);
@@ -390,88 +390,110 @@
         <div class="tab-pane fade" id="valuation" role="tabpanel" aria-labelledby="valuation-tab">
             <div class="row">
                 <div class="col-md-4">
+                    <div class="infobox text-center" id="about">
+                        <a data-toggle="tab" href="#about_tab">
+                            <h4>About</h4>
+                            <p>About</p>
+                        </a>
+                    </div>
+                    <div class="infobox text-center" id="ceo">
+                        <a data-toggle="tab" href="#ceo_tab">
+                            <h4>CEO</h4>
+                            <p>CEO</p>
+                        </a>
+                    </div>
+                    <div class="infobox text-center" id="employees_pe">
+                        <a data-toggle="tab" href="#employees_tab">
+                            <h4>Employees</h4>
+                                <p>Employees</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="infobox text-center" id="headquarters">
+                        <a data-toggle="tab" href="#headquarters_tab">
+                            <h4>Head Quarters</h4>
+                            <p>Head Quarters</p>
+                        </a>
+                    </div>
+                    <div class="infobox text-center" id="founded">
+                        <a data-toggle="tab" href="#founded_tab">
+                            <h4>Founded</h4>
+                            <p>Founded</p>
+                        </a>
+                    </div>
                     <div class="infobox text-center" id="market_cap">
                         <a data-toggle="tab" href="#market_cap_tab">
                             <h4>Market Cap</h4>
-                            <p>Market capitalization of the selected stock.</p>
-                        </a>
-                    </div>
-                    <div class="infobox text-center" id="current_pe">
-                        <a data-toggle="tab" href="#current_pe_tab">
-                            <h4>Current P/E</h4>
-                            <p>Current price-to-earnings ratio of the selected stock.</p>
-                        </a>
-                    </div>
-                    <div class="infobox text-center" id="industry_pe">
-                        <a data-toggle="tab" href="#industry_pe_tab">
-                            <h4>Industry P/E</h4>
-                                <p>Industry price-to-earnings ratio of the selected stock.</p>
+                            <p>Market Cap</p>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="infobox text-center" id="price_book">
-                        <a data-toggle="tab" href="#price_book_tab">
-                            <h4>Price/Book</h4>
-                            <p>Price-to-book ratio of the selected stock.</p>
+                    <div class="infobox text-center" id="pe_ratio">
+                        <a data-toggle="tab" href="#pe_ratio_tab">
+                            <h4>PE Ratio</h4>
+                            <p>PE Ratio</p>
                         </a>
                     </div>
-                    <div class="infobox text-center" id="eps_ttm">
-                        <a data-toggle="tab" href="#eps_ttm_tab">
-                            <h4>EPS (TTM)</h4>
-                            <p>Earnings per share of the selected stock over the last 12 months.</p>
+                    <div class="infobox text-center" id="dividend_yield">
+                        <a data-toggle="tab" href="#dividend_yield_tab">
+                            <h4>Divident Yield</h4>
+                            <p>Divident Yield</p>
                         </a>
                     </div>
-                    <div class="infobox text-center" id="face_value">
-                        <a data-toggle="tab" href="#face_value_tab">
-                            <h4>Face Value (Rs)</h4>
-                            <p>The nominal value of the shares of the selected stock.</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="infobox text-center" id="divident">
-                        <a data-toggle="tab" href="#divident_tab">
-                            <h4>DIVIDEND (%)</h4>
-                            <p>DIVIDEND (%) of the selected stock.</p>
-                        </a>
-                    </div>
-                    <div class="infobox text-center" id="put_call">
-                        <a data-toggle="tab" href="#put_call_tab">
-                            <h4>PUT/CALL</h4>
-                            <p>PUT/CALL of the selected stock over the last 12 months.</p>
-                        </a>
-                    </div>
-                    <div class="infobox text-center" id="deliverables">
-                        <a data-toggle="tab" href="#deliverables_tab">
-                            <h4>DELIVERABLES (%)</h4>
-                            <p>DELIVERABLES (%) of the shares of the selected stock.</p>
+                    <div class="infobox text-center" id="avg_volume">
+                        <a data-toggle="tab" href="#avg_volume_tab">
+                            <h4>Avg Volume</h4>
+                            <p>Avg Volume</p>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="infobox text-center" id="delivery_avg_3_days">
-                        <a data-toggle="tab" href="#delivery_avg_3_days_tab">
-                            <h4>3 DAY DELIVERY AVERAGE %</h4>
-                            <p>3 DAY DELIVERY AVERAGE % of the shares of the selected stock.</p>
+                    <div class="infobox text-center" id="high_today">
+                        <a data-toggle="tab" href="#high_today_tab">
+                            <h4>High Today</h4>
+                            <p>High Today</p>
                         </a>
                     </div>
-                    <div class="infobox text-center" id="delivery_avg_5_days">
-                        <a data-toggle="tab" href="#delivery_avg_5_days_tab">
-                            <h4>5 DAY DELIVERY AVERAGE %</h4>
-                            <p>5 DAY DELIVERY AVERAGE % of the shares of the selected stock.</p>
+                    <div class="infobox text-center" id="low_today">
+                        <a data-toggle="tab" href="#low_today_tab">
+                            <h4>Low Today</h4>
+                            <p>Low Today</p>
                         </a>
                     </div>
-                    <div class="infobox text-center" id="delivery_avg_8_days">
-                        <a data-toggle="tab" href="#delivery_avg_8_days_tab">
-                            <h4>8 DAY DELIVERY AVERAGE %</h4>
-                            <p>8 DAY DELIVERY AVERAGE % of the shares of the selected stock.</p>
+                    <div class="infobox text-center" id="open_price">
+                        <a data-toggle="tab" href="#open_price_tab">
+                            <h4>Open Price</h4>
+                            <p>Open Price</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="infobox text-center" id="volume">
+                        <a data-toggle="tab" href="#volume_tab">
+                            <h4>Volume</h4>
+                            <p>Volume</p>
+                        </a>
+                    </div>
+                    <div class="infobox text-center" id="52_week_high">
+                        <a data-toggle="tab" href="#52_week_high_tab">
+                            <h4>52 Week High</h4>
+                            <p>52 Week High</p>
+                        </a>
+                    </div>
+                    <div class="infobox text-center" id="52_week_low">
+                        <a data-toggle="tab" href="#52_week_low_tab">
+                            <h4>52 Week Low</h4>
+                            <p>52 Week Low</p>
                         </a>
                     </div>
                 </div>

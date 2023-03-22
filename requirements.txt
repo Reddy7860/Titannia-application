@@ -15,3 +15,5 @@ plotly
 yfinance
 pandasql
 nsepy
+bs4
+nsetools

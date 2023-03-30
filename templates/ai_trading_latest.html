@@ -60,38 +60,9 @@
 
     <div class="container-fluid">
         <h1 align="center">Candlestick Chart With Technical Analysis</h1>
-        <!-- <div id="chart">
+        <div id="chart">
             {{ plot|safe }}
-        </div> -->
-
-        <div class="container">
-        <h1>Visualizations</h1>
-        <button id="load-charts" class="btn btn-primary">Load Charts</button>
-        <hr>
-        <div id="candlestick-chart"></div>
-        <div id="bar-chart" style="width:100%;height:400px;"></div>
-        <div id="pie-chart" style="width:100%;height:400px;"></div>
-        <div id="output-data"></div>
-
-
-    </div>
-
-   <!--  <script>
-        $("#load-charts").click(function() {
-            $.post("/get_combined_chart", {
-                'selectedOption': 'Nifty',
-                'selectedDate': '2023-03-18',
-                'selectedLine': 'Arima'
-            }, function(data) {
-                $("#candlestick-chart").html(data.candlestick_chart);
-                $("#bar-chart").html(data.bar_chart);
-                $("#pie-chart").html(data.pie_chart);
-                $("#output-data").html(data.output_data);
-            });
-        });
-    </script> -->
-
-
+        </div>
         <!-- <div id="chart" class="chart">
         </div> -->
         <!-- <div style="height: 300px;" id="graph" /> -->
@@ -133,23 +104,7 @@
             debugger;
             console.log(data)
 
-            // $("#chart").html(data.figure);
-
-            // $("#candlestick-chart").html(data.candlestick_chart);
-            //     $("#bar-chart").html(data.bar_chart);
-            //     $("#pie-chart").html(data.pie_chart);
-            //     $("#output-data").html(data.output_data);
-
-
-            $("#candlestick-chart").html(data.candlestick_chart);
-
-            var bar_chart_data = JSON.parse(data.bar_chart);
-            Plotly.newPlot('bar-chart', [bar_chart_data]);
-
-            var pie_chart_data = JSON.parse(data.pie_chart);
-            Plotly.newPlot('pie-chart', [pie_chart_data]);
-
-            $("#output-data").html(data.output_data);
+            $("#chart").html(data.figure);
 
         });
 

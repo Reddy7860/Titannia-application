@@ -20,28 +20,10 @@
 <body>
     {% include "navbar.html" %}
     <div class="container-fluid">
-
-         <div class="container-fluid">
         <h1 align="center">Open Interest for Calls and Puts:</h1>
         <div id="chart" class="chart"></div>
 
-         <h1 align="center">Implied Volatility for Calls and Puts:</h1>
-            <div id="chart_iv" class="chart"></div>
-
-            <h1 align="center">Change in Open Interest for Calls and Puts:</h1>
-            <div id="chart_coi" class="chart"></div>
-
-            <h1 align="center">Call-Put Ratio for Options:</h1>
-            <div id="chart_cpr" class="chart"></div>
-
-            <h1 align="center">Open Interest and Implied Volatility for Calls and Puts:</h1>
-            <div id="chart_oi_iv" class="chart"></div>
-
-            <h1 align="center">Heatmap of Open Interest and Implied Volatility:</h1>
-            <div id="chart_heatmap" class="chart"></div>
-
-            <div style="height: 300px;" id="oi_nifty" />
-        </div>
+        <div style="height: 300px;" id="oi_nifty" />
 
 
     </div>
@@ -49,25 +31,8 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript">
     var graphs = {{graphJSON | safe}};
-    Plotly.plot('chart',graphs,{});
-    // var graphJSON_oi = {{graphJSON_oi | safe}};
-    // Plotly.plot('chart_oi',graphJSON_oi,{});
-    var graphJSON_iv = {{graphJSON_iv | safe}};
-    Plotly.plot('chart_iv',graphJSON_iv,{});     
-
-    var graphJSON_coi = {{graphJSON_coi | safe}};
-    Plotly.plot('chart_coi',graphJSON_coi,{});     
-
-    var graphJSON_cpr = {{graphJSON_cpr | safe}};
-    Plotly.plot('chart_cpr',graphJSON_cpr,{});     
-
-    var graphJSON_oi_iv = {{graphJSON_oi_iv | safe}};
-    Plotly.plot('chart_oi_iv',graphJSON_oi_iv,{});     
-
-    var graphJSON_heatmap = {{graphJSON_heatmap | safe}};
-    Plotly.plot('chart_heatmap',graphJSON_heatmap,{});  
+    Plotly.plot('chart',graphs,{});        
 </script>
-
 
  {% endblock %}
 

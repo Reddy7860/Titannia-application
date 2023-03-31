@@ -17,3 +17,4 @@ pandasql
 nsepy
 bs4
 nsetools
+robin_stocks

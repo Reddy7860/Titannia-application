@@ -32,6 +32,9 @@
 
     </style>
 
+
+
+
     <div>
       <form>
         <label for="select-option">Select an option:</label>
@@ -43,8 +46,68 @@
         <input type="date" id="start-date" onchange="refreshTable()">
       </form>
     </div>
-    <div>
-    <h2> Final Position Data </h2>
+
+
+    <div class="container">
+      <div class="metric">
+        <h3>Total number of records found in Final Position Data:</h3>
+        <p>{{ metrics.num_final_position_data }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total number of records found in Final Open Data:</h3>
+        <p>{{ metrics.num_final_open_data }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total number of records found in Final Stoploss Data:</h3>
+        <p>{{ metrics.num_final_stoploss_data }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total number of completed orders:</h3>
+        <p>{{ metrics.num_completed_orders }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total profit and loss from completed orders:</h3>
+        <p>{{ metrics.total_completed_orders_profit_loss }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total number of closed positions:</h3>
+        <p>{{ metrics.num_closed_positions }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total profit and loss from closed positions:</h3>
+        <p>{{ metrics.total_closed_positions_profit_loss }}</p>
+      </div>
+      <div class="metric">
+        <h3>Average lot size of completed orders:</h3>
+        <p>{{ metrics.avg_completed_orders_lot_size }}</p>
+      </div>
+      <div class="metric">
+        <h3>Average lot size of closed positions:</h3>
+        <p>{{ metrics.avg_closed_positions_lot_size }}</p>
+      </div>
+      <div class="metric">
+        <h3>Total number of unique clients:</h3>
+        <p>{{ metrics.unique_clients }}</p>
+      </div>
+      <!-- <div class="visual">
+        <h3>Bar chart showing the number of completed orders for each trading symbol:</h3>
+        <div id="completed-orders-bar-chart"></div>
+        <script>
+          var completedOrdersBarChart = {
+            {
+              visuals.completed_orders_bar_chart.to_json()
+            }
+          };
+          Plotly.newPlot("completed-orders-bar-chart", completedOrdersBarChart.data, completedOrdersBarChart.layout);
+        </script>
+      </div>
+      <div class="visual">
+        <h3>Bar chart showing the number of closed positions for each trading symbol:</h3>
+        <div id="closed-positions-bar-chart"></div>
+        <div>
+        <h2> Final Position Data </h2>
+        </div>
+    </div> -->
     </div>
     <table id="final_position_data-data-table">
     <thead>
@@ -185,7 +248,7 @@
         return response.json();
     })
     .then(function(data) {
-        // debugger;
+        debugger;
         console.log(data)
         // Clear the existing data in the table
         var table1 = document.getElementById("final_position_data-data-table");

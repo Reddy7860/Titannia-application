@@ -101,43 +101,126 @@
                     data: JSON.stringify({ tabName: tabName,selected_stock:selected_stock }),
                     success: function(data) {
                         debugger;
-                        if (data.tabName == '#valuation') {
+                        if (data.tabName == '#us_valuation') {
+
+            //                 <div class="row">
+            //     <div class="col-md-4">
+            //         <div class="infobox text-center" id="about">
+            //             <a data-toggle="tab" href="#about_tab">
+            //                 <h4>Description</h4>
+            //                 <p>Description</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="ceo">
+            //             <a data-toggle="tab" href="#ceo_tab">
+            //                 <h4>CEO</h4>
+            //                 <p>CEO</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="employees_pe">
+            //             <a data-toggle="tab" href="#employees_tab">
+            //                 <h4>Employees</h4>
+            //                 <p>Employees</p>
+            //             </a>
+            //         </div>
+            //     </div>
+            // </div>
+            // <div class="row">
+            //     <div class="col-md-4">
+            //         <div class="infobox text-center" id="headquarters">
+            //             <a data-toggle="tab" href="#headquarters_tab">
+            //                 <h4>Head Quarters</h4>
+            //                 <p>Head Quarters</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="founded">
+            //             <a data-toggle="tab" href="#founded_tab">
+            //                 <h4>Founded</h4>
+            //                 <p>Founded</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="market_cap">
+            //             <a data-toggle="tab" href="#market_cap_tab">
+            //                 <h4>Market Cap</h4>
+            //                 <p>Market Cap</p>
+            //             </a>
+            //         </div>
+            //     </div>
+            // </div>
+            // <div class="row">
+            //     <div class="col-md-4">
+            //         <div class="infobox text-center" id="pe_ratio">
+            //             <a data-toggle="tab" href="#pe_ratio_tab">
+            //                 <h4>PE Ratio</h4>
+            //                 <p>PE Ratio</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="dividend_yield">
+            //             <a data-toggle="tab" href="#dividend_yield_tab">
+            //                 <h4>Divident Yield</h4>
+            //                 <p>Divident Yield</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="avg_volume">
+            //             <a data-toggle="tab" href="#avg_volume_tab">
+            //                 <h4>Avg Volume</h4>
+            //                 <p>Avg Volume</p>
+            //             </a>
+            //         </div>
+            //     </div>
+            // </div>
+            // <div class="row">
+            //     <div class="col-md-4">
+            //         <div class="infobox text-center" id="high_today">
+            //             <a data-toggle="tab" href="#high_today_tab">
+            //                 <h4>High Today</h4>
+            //                 <p>High Today</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="low_today">
+            //             <a data-toggle="tab" href="#low_today_tab">
+            //                 <h4>Low Today</h4>
+            //                 <p>Low Today</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="open_price">
+            //             <a data-toggle="tab" href="#open_price_tab">
+            //                 <h4>Open Price</h4>
+            //                 <p>Open Price</p>
+            //             </a>
+            //         </div>
+            //     </div>
+            // </div>
+            // <div class="row">
+            //     <div class="col-md-4">
+            //         <div class="infobox text-center" id="volume">
+            //             <a data-toggle="tab" href="#volume_tab">
+            //                 <h4>Volume</h4>
+            //                 <p>Volume</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="52_week_high">
+            //             <a data-toggle="tab" href="#52_week_high_tab">
+            //                 <h4>52 Week High</h4>
+            //                 <p>52 Week High</p>
+            //             </a>
+            //         </div>
+            //         <div class="infobox text-center" id="52_week_low">
+            //             <a data-toggle="tab" href="#52_week_low_tab">
+            //                 <h4>52 Week Low</h4>
+            //                 <p>52 Week Low</p>
+            //             </a>
+            //         </div>
+            //     </div>
+            // </div>
+
+
+
+
                             $('#about').find('h4').text('About ');
                             $('#about').find('p').text(data['data']['about']);
 
-                            // $('#current_pe').find('h4').text('Current P/E ');
-                            // $('#current_pe').find('p').text(data['valuation_info']['data']['PECONS']);
-
-                            // $('#industry_pe').find('h4').text('Industry P/E ');
-                            // $('#industry_pe').find('p').text(data['valuation_info']['data']['IND_PE']);
-
-                            // $('#price_book').find('h4').text('Price/Book ');
-                            // $('#price_book').find('p').text((data['valuation_info']['data']['pricecurrent']/data['valuation_info']['data']['BV']));
-
-                            // $('#eps_ttm').find('h4').text('EPS (TTM) ');
-                            // $('#eps_ttm').find('p').text(data['valuation_info']['data']['sc_ttm_cons']);
-
-                            // $('#face_value').find('h4').text('Face Value (Rs) ');
-                            // $('#face_value').find('p').text(data['valuation_info']['data']['FV']);
-
-                            // $('#divident').find('h4').text('DIVIDEND (%) ');
-                            // $('#divident').find('p').text(data['valuation_info']['data']['DYCONS']);
-
-                            // $('#put_call').find('h4').text('PUT/CALL ');
-                            // $('#put_call').find('p').text(data['valuation_info']['data']['P_C']);
-
-                            // $('#deliverables').find('h4').text('DELIVERABLES (%) ');
-                            // $('#deliverables').find('p').text(data['valuation_info']['data']['DELV']);
-
-                            // $('#delivery_avg_3_days').find('h4').text('3 DAY DELIVERY AVERAGE % ');
-                            // $('#delivery_avg_3_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_3day']);
-
-                            // $('#delivery_avg_5_days').find('h4').text('5 DAY DELIVERY AVERAGE % ');
-                            // $('#delivery_avg_5_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_5day']);
-
-                            // $('#delivery_avg_8_days').find('h4').text('8 DAY DELIVERY AVERAGE % ');
-                            // $('#delivery_avg_8_days').find('p').text(data['valuation_info']['data']['AvgDelVolPer_8day']);
-                        }else if ( data.tabName ==  "#price_and_returns"){
+                        }else if ( data.tabName ==  "#us_price_and_returns"){
 
                             $('#price_chart').html(data.html);
                             // Configure the chart size
@@ -153,121 +236,19 @@
                             var chart_height = chart_width * 0.6;
                             $('#stock_returns .js-plotly-plot').css('height', chart_height);
 
-                        }else if ( data.tabName ==  "#historic_data"){
-                            $('#historical_signals').html(data.chart);
+                        }else if ( data.tabName ==  "#us_historic_data"){
+                            $('#us_historical_signals').html(data.chart);
                             // Configure the chart size
-                            var chart_width = $('#historical_signals').width();
+                            var chart_width = $('#us_historical_signals').width();
                             var chart_height = chart_width * 0.6;
-                            $('#historical_signals .js-plotly-plot').css('height', chart_height);
-                        }else if ( data.tabName ==  "#news_data"){
-                            debugger;
-                            var money_control_data = data.news_data.money_control_news;
-                            var economic_times_news_data = data.news_data.economic_times_news_data;
-                            var live_mint_data = data.news_data.live_mint_news_data;
-
-                            // Display money control news data
-                            var money_control_table_body = $('#money-control-table-body');
-                            money_control_table_body.empty();
-                            $.each(money_control_data.Headline, function(index, value) {
-                                var row = $('<tr>');
-                                row.append($('<td>').html(value));
-                                row.append($('<td>').html('<a href="' + money_control_data.Link[index] + '">' + money_control_data.Link[index] + '</a>'));
-                                // row.append($('<td>').html(money_control_data.entities[index]));
-                                // row.append($('<td>').html(money_control_data.spacy_sentiment[index]));
-                                // row.append($('<td>').html(money_control_data.spacy_polarity[index]));
-                                // row.append($('<td>').html(money_control_data.spacy_pos_words[index]));
-                                // row.append($('<td>').html(money_control_data.spacy_neg_words[index]));
-                                // row.append($('<td>').html(money_control_data.nltk_sentiment[index]));
-                                // row.append($('<td>').html(money_control_data.nltk_neg[index]));
-                                // row.append($('<td>').html(money_control_data.nltk_neu[index]));
-                                // row.append($('<td>').html(money_control_data.nltk_pos[index]));
-                                // row.append($('<td>').html(money_control_data.nltk_compound[index]));
-                                // // row.append($('<td>').html(money_control_data.amazon_sentiment_scores[index]));
-                                // row.append($('<td>').html(money_control_data.finbert_sentiment[index]));
-
-                                money_control_table_body.append(row);
-                            });
-
-                            // Display money control news data
-                            var economic_times_table_body = $('#economic-times-table-body');
-                            economic_times_table_body.empty();
-                            $.each(economic_times_news_data.Headline, function(index, value) {
-                                var row = $('<tr>');
-                                row.append($('<td>').html(value));
-                                row.append($('<td>').html('<a href="' + economic_times_news_data.Link[index] + '">' + economic_times_news_data.Link[index] + '</a>'));
-                                economic_times_table_body.append(row);
-                            });
-                            
-                            // Display live mint news data
-                            var live_mint_table_body = $('#live-mint-table-body');
-                            live_mint_table_body.empty();
-                            $.each(live_mint_data.Headline, function(index, value) {
-                                var row = $('<tr>');
-                                row.append($('<td>').html(value));
-                                row.append($('<td>').html('<a href="' + live_mint_data.Link[index] + '">' + live_mint_data.Link[index] + '</a>'));
-                                live_mint_table_body.append(row);
-                            });
-
-
+                            $('#us_historical_signals .js-plotly-plot').css('height', chart_height);
                         }else{
 
                         }
-
-                        // $('#market_cap').text(data['valuation_info']['data']['MKTCAP']);
-                        // $('#current_pe').text(data['valuation_info']['data']['PECONS']);
-                        // $('#industry_pe').text(data['valuation_info']['data']['IND_PE']);
-                        // $('#price_book').text((data['valuation_info']['data']['pricecurrent']/data['valuation_info']['data']['BV']));
-                        // $('#eps_ttm').text(data['valuation_info']['data']['sc_ttm_cons']);
-                        // $('#face_value').text(data['valuation_info']['data']['FV']);
-                        // $('#divident').text(data['valuation_info']['data']['DYCONS']);
-                        // $('#put_call').text(data['valuation_info']['data']['P_C']);
-                        // $('#deliverables').text(data['valuation_info']['data']['DELV']);
-                        // $('#delivery_avg_3_days').text(data['valuation_info']['data']['AvgDelVolPer_3day']);
-                        // $('#delivery_avg_5_days').text(data['valuation_info']['data']['AvgDelVolPer_5day']);
-                        // $('#delivery_avg_8_days').text(data['valuation_info']['data']['AvgDelVolPer_8day']);
-
-                        // $(tabName).html(data.valuation_info);
-
                         
                     }
                 });
             });
-        });
-
-        document.addEventListener("DOMContentLoaded", function() {
-          document.getElementById("analyze-button").addEventListener("click", function() {
-            // get data from table
-            var tableRows = document.querySelectorAll("#money-control-data-table tbody tr");
-            var data = [];
-            for (var i = 0; i < tableRows.length; i++) {
-                var row = tableRows[i];
-                var headline = row.cells[0].textContent.trim();
-                var link = row.cells[1].textContent.trim();
-                data.push({headline: headline, link: link});
-            }
-            // var economicTimesData = getDataFromTable("economic-times-data-table");
-            // var liveMintData = getDataFromTable("live-mint-data-table");
-
-            // call python function with data
-            $.ajax({
-              url: "/get_sentiment_analysis",
-              type: "POST",
-              contentType: "application/json",
-              data: JSON.stringify({
-                data: data
-                // economicTimesData: economicTimesData,
-                // liveMintData: liveMintData
-              }),
-              success: function(data) {
-                console.log(data);
-                // update table with sentiment analysis results
-                updateTable(data);
-              },
-              error: function(xhr, status, error) {
-                console.log(error);
-              }
-            });
-          });
         });
 
 
@@ -302,41 +283,6 @@
           });
         });
 
-
-
-
-         // document.getElementById("analyze-button").addEventListener("click", function() {
-         //        // Get the data from the table
-         //        var tableRows = document.querySelectorAll("#money-control-data-table tbody tr");
-         //        var data = [];
-         //        for (var i = 0; i < tableRows.length; i++) {
-         //            var row = tableRows[i];
-         //            var headline = row.cells[0].textContent.trim();
-         //            var link = row.cells[1].textContent.trim();
-         //            data.push({headline: headline, link: link});
-         //        }
-
-         //        // Send the data to the server
-         //        var xhr = new XMLHttpRequest();
-         //        xhr.open("POST", "/get_sentiment_analysis");
-         //        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-         //        xhr.send(JSON.stringify(data));
-         //    });
-
-        // function sentimentAnalyzer() {
-        //   $.ajax({
-        //     url: "/get_sentiment_analysis",
-        //     type: "POST",
-        //     success: function(data) {
-        //         console.log("Success")
-        //       // Update the table with the returned data
-        //       // $("#money-control-table-body").html(data);
-        //     },
-        //     error: function(xhr, status, error) {
-        //       console.log(error);
-        //     }
-        //   });
-        // }
     </script>
 </head>
 <body>
@@ -369,10 +315,10 @@
             <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="valuation-tab" data-toggle="tab" href="#valuation" role="tab" aria-controls="valuation" aria-selected="false">Valuation</a>
+            <a class="nav-link" id="us_valuation-tab" data-toggle="tab" href="#us_valuation" role="tab" aria-controls="us_valuation" aria-selected="false">Valuation</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="price-and-returns-tab" data-toggle="tab" href="#price_and_returns" role="tab" aria-controls="price_and_returns" aria-selected="false">Price And Returns</a>
+            <a class="nav-link" id="price-and-returns-tab" data-toggle="tab" href="#us_price_and_returns" role="tab" aria-controls="us_price_and_returns" aria-selected="false">Price And Returns</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="historic-data-tab" data-toggle="tab" href="#historic_data" role="tab" aria-controls="historic_data" aria-selected="false">Historical Data</a>
@@ -387,13 +333,13 @@
             <h2>Overview Tab Content</h2>
         </div>
 
-        <div class="tab-pane fade" id="valuation" role="tabpanel" aria-labelledby="valuation-tab">
+        <div class="tab-pane fade" id="us_valuation" role="tabpanel" aria-labelledby="us_valuation-tab">
             <div class="row">
                 <div class="col-md-4">
                     <div class="infobox text-center" id="about">
                         <a data-toggle="tab" href="#about_tab">
-                            <h4>About</h4>
-                            <p>About</p>
+                            <h4>Description</h4>
+                            <p>Description</p>
                         </a>
                     </div>
                     <div class="infobox text-center" id="ceo">
@@ -405,7 +351,7 @@
                     <div class="infobox text-center" id="employees_pe">
                         <a data-toggle="tab" href="#employees_tab">
                             <h4>Employees</h4>
-                                <p>Employees</p>
+                            <p>Employees</p>
                         </a>
                     </div>
                 </div>
@@ -505,7 +451,7 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="price_and_returns" role="tabpanel" aria-labelledby="price-and-returns-tab">
+        <div class="tab-pane fade" id="us_price_and_returns" role="tabpanel" aria-labelledby="us_price-and-returns-tab">
             <h2>Price and Returns Tab Content</h2>
             <h4 align="center">Price Chart</h4>
             <div id="price_chart"></div>
@@ -513,58 +459,9 @@
             <div id="stock_returns"></div>
         </div>
 
-        <div class="tab-pane fade" id="historic_data" role="tabpanel" aria-labelledby="historic-data-tab">
+        <div class="tab-pane fade" id="us_historic_data" role="tabpanel" aria-labelledby="us_historic-data-tab">
             <h4 align="center">Last one year Price</h4>
-            <div id="historical_signals"></div>
-        </div>
-        <div class="tab-pane fade" id="news_data" role="tabpanel" aria-labelledby="news-data-tab">
-            <button id="analyze-button">Implement ML Sentiment Analysis</button>
-            <h4 align="center">Money Control News</h4>
-            <table id="money-control-data-table">
-            <thead>
-                <tr>
-                    <th>Headline</th>
-                    <th>Link</th>
-                    <!-- <th>entities</th>
-                    <th>spacy_sentiment</th>
-                    <th>spacy_polarity</th>
-                    <th>spacy_pos_words</th>
-                    <th>spacy_neg_words</th>
-                    <th>nltk_sentiment</th>
-                    <th>nltk_neg</th>
-                    <th>nltk_neu</th>
-                    <th>nltk_pos</th>
-                    <th>nltk_compound</th>
-                    <th>amazon_sentiment_scores</th>
-                    <th>finbert_sentiment</th> -->
-                </tr>
-            </thead>
-            <tbody id="money-control-table-body">
-            </tbody>
-            </table>
-
-            <table id="economic-times-data-table">
-            <thead>
-                <tr>
-                    <th>Headline</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody id="economic-times-table-body">
-            </tbody>
-            </table>
-
-            <h4 align="center">Live mint News</h4>
-            <table id="live-mint-data-table">
-            <thead>
-                <tr>
-                    <th>Headline</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody id="live-mint-table-body">
-            </tbody>
-            </table>
+            <div id="us_historical_signals"></div>
         </div>
     </div>
 

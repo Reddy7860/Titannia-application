@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.css"/>
 
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
 
     <style>
         .positive-change {
@@ -21,6 +23,7 @@
     </style>
 </head>
 <body>
+    {% include "trading_view_slideshow.html" %}
     {% include "navbar.html" %}
 
     <h1 class="text-center">Market Analysis</h1>
@@ -32,6 +35,33 @@
           <option value="{{ key }}">{{ value }}</option>
         {% endfor %}
       </select>
+    </div>
+
+    <div class="row">
+        <article class="box">
+          <script type="text/javascript">
+            new TradingView.widget({
+              symbol: "XETR:DAX",
+              // symbol: "NSE-NIFTY",
+              interval: "1",
+              timezone: "Etc/UTC",
+              theme: "Dark",
+              style: "1",
+              locale: "en",
+              toolbar_bg: "rgba(0, 0, 0, 1)",
+              hide_top_toolbar: true,
+              left_toolbar: true,
+              hide_side_toolbar: false,
+              allow_symbol_change: true,
+              hideideas: true,
+              show_popup_button: true,
+              popup_width: "1000",
+              popup_height: "650",
+              studies: ["BB@tv-basicstudies", "MASimple@tv-basicstudies"],
+              height: 600
+            });
+          </script>
+        </article>
     </div>
 
     <div class="row">

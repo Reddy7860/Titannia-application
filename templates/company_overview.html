@@ -14,6 +14,56 @@
             padding: 10px;
             margin-bottom: 10px;
         }
+
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+
+        .dropdown-input {
+          display: block;
+          width: 100%;
+          height: 30px;
+          padding: 5px 10px;
+          font-size: 14px;
+          line-height: 1.5;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          background-color: #fff;
+          cursor: pointer;
+        }
+
+        .dropdown-list {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          z-index: 1;
+          display: none;
+          width: 100%;
+          max-height: 200px;
+          overflow-y: auto;
+          background-color: #fff;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .dropdown-item {
+          padding: 5px 10px;
+          font-size: 14px;
+          line-height: 1.5;
+          cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f2f2f2;
+        }
+
+        .show .dropdown-list {
+          display: block;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
@@ -122,18 +172,18 @@
                                 var row = $('<tr>');
                                 row.append($('<td>').html(value));
                                 row.append($('<td>').html('<a href="' + money_control_data.Link[index] + '">' + money_control_data.Link[index] + '</a>'));
-                                row.append($('<td>').html(money_control_data.entities[index]));
-                                row.append($('<td>').html(money_control_data.spacy_sentiment[index]));
-                                row.append($('<td>').html(money_control_data.spacy_polarity[index]));
-                                row.append($('<td>').html(money_control_data.spacy_pos_words[index]));
-                                row.append($('<td>').html(money_control_data.spacy_neg_words[index]));
-                                row.append($('<td>').html(money_control_data.nltk_sentiment[index]));
-                                row.append($('<td>').html(money_control_data.nltk_neg[index]));
-                                row.append($('<td>').html(money_control_data.nltk_neu[index]));
-                                row.append($('<td>').html(money_control_data.nltk_pos[index]));
-                                row.append($('<td>').html(money_control_data.nltk_compound[index]));
-                                // row.append($('<td>').html(money_control_data.amazon_sentiment_scores[index]));
-                                row.append($('<td>').html(money_control_data.finbert_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.entities[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_polarity[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_pos_words[index]));
+                                // row.append($('<td>').html(money_control_data.spacy_neg_words[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_sentiment[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_neg[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_neu[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_pos[index]));
+                                // row.append($('<td>').html(money_control_data.nltk_compound[index]));
+                                // // row.append($('<td>').html(money_control_data.amazon_sentiment_scores[index]));
+                                // row.append($('<td>').html(money_control_data.finbert_sentiment[index]));
 
                                 money_control_table_body.append(row);
                             });
@@ -221,6 +271,40 @@
         });
 
 
+        $(document).ready(function() {
+          var dropdownInput = document.getElementById('stock_input');
+          var dropdownHidden = document.getElementById('stock_input_hidden');
+          var dropdownList = document.querySelector('.dropdown-list');
+          var dropdownItems = document.querySelectorAll('.dropdown-item');
+
+          dropdownInput.addEventListener('input', function() {
+            var value = this.value.trim();
+            var matchingItem = Array.from(dropdownItems).find(function(item) {
+              return item.textContent.trim() === value;
+            });
+            if (matchingItem) {
+              dropdownHidden.value = matchingItem.dataset.value;
+            } else {
+              dropdownHidden.value = value;
+            }
+          });
+
+          dropdownInput.addEventListener('click', function() {
+            dropdownList.classList.toggle('show');
+          });
+
+          dropdownItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+              dropdownInput.value = this.textContent;
+              dropdownHidden.value = this.dataset.value;
+              dropdownList.classList.remove('show');
+            });
+          });
+        });
+
+
+
+
          // document.getElementById("analyze-button").addEventListener("click", function() {
          //        // Get the data from the table
          //        var tableRows = document.querySelectorAll("#money-control-data-table tbody tr");
@@ -259,11 +343,16 @@
     {% include "navbar.html" %}
     <div class="row">
             <div class="col-md-4">
-                <select class="form-control" id="stock_input" name="stock_input">
+                <div class="dropdown">
+                  <input type="text" class="dropdown-input" placeholder="Select Stock" id="stock_input">
+                  <input type="hidden" name="stock_input" id="stock_input_hidden">
+                  <ul class="dropdown-list">
                     {% for ticker in tickers %}
-                        <option value="{{ ticker }}">{{ ticker }}</option>
+                    <li class="dropdown-item" data-value="{{ ticker }}">{{ ticker }}</li>
                     {% endfor %}
-                </select>
+                  </ul>
+                </div>
+
                 <!-- <select class="form-control" id="stock_input" name="stock_input">
                     <option value="RELIANCE.NS">RELIANCE.NS</option>
                     <option value="SBIN.NS">SBIN.NS</option>
@@ -414,7 +503,7 @@
                 <tr>
                     <th>Headline</th>
                     <th>Link</th>
-                    <th>entities</th>
+                    <!-- <th>entities</th>
                     <th>spacy_sentiment</th>
                     <th>spacy_polarity</th>
                     <th>spacy_pos_words</th>
@@ -424,8 +513,8 @@
                     <th>nltk_neu</th>
                     <th>nltk_pos</th>
                     <th>nltk_compound</th>
-                    <!-- <th>amazon_sentiment_scores</th> -->
-                    <th>finbert_sentiment</th>
+                    <th>amazon_sentiment_scores</th>
+                    <th>finbert_sentiment</th> -->
                 </tr>
             </thead>
             <tbody id="money-control-table-body">

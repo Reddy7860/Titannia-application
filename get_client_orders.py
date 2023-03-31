@@ -21,8 +21,13 @@ def get_display_data(client_id,date_inpt,db):
     final_completed_orders = pd.DataFrame()
     final_closed_positions = pd.DataFrame()
 
-    order_data = db["Order_Data"].find({'Client_id':str(client_id),'execution_date':str(date_inpt)}).sort("updatetime", -1)
-    position_data = db["Position_Data"].find({'Client_id':str(client_id),'execution_date':str(date_inpt)})
+    if client_id != "All":
+        order_data = db["Order_Data"].find({'Client_id':str(client_id),'execution_date':str(date_inpt)}).sort("updatetime", -1)
+        position_data = db["Position_Data"].find({'Client_id':str(client_id),'execution_date':str(date_inpt)})
+    else:
+        order_data = db["Order_Data"].find({}).sort("updatetime", -1)
+        position_data = db["Position_Data"].find({})
+
     
     order_data =  pd.DataFrame(list(order_data))
     position_data =  pd.DataFrame(list(position_data))
@@ -77,7 +82,7 @@ def get_display_data(client_id,date_inpt,db):
     if len(final_open_data) > 0:
     	final_open_data = final_open_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid']]
     else:
-    	final_position_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid'])
+    	final_open_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid'])
 
     if len(final_stoploss_data) > 0 :
     	final_stoploss_data = final_stoploss_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid']]

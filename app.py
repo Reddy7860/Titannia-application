@@ -68,6 +68,9 @@ credentials = service_account.Credentials.from_service_account_file(key_path)
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = key_path
 
 
+ROBINHOOD_USERNAME = os.environ.get('ROBINHOOD_USERNAME')
+ROBINHOOD_PASSWORD = os.environ.get('ROBINHOOD_PASSWORD')
+
 
 
 # Create a list of users for demo purposes
@@ -654,33 +657,72 @@ def us_get_infobox_data():
     selected_stock = request.get_json()["selected_stock"]
     print(selected_stock)
 
-    if tabName == "#valuation":
+    robin_stocks.robinhood.authentication.login(username=ROBINHOOD_USERNAME,
+         password=ROBINHOOD_PASSWORD,
+         expiresIn=86400,
+         by_sms=True)
+
+    if tabName == "#us_valuation":
 
         symbol = selected_stock
-        ticker = yf.Ticker(symbol)
-        overview = ticker.info
-        
-        data = {
-            'about': overview['longBusinessSummary'],
-            'ceo': overview['ceo'],
-            'employees': overview['fullTimeEmployees'],
-            'headquarters': overview['city'] + ', ' + overview['state'],
-            'founded': overview['founded'],
-            'market_cap': overview['marketCap'],
-            'pe_ratio': overview['trailingPE'],
-            'dividend_yield': overview['dividendYield'] * 100,
-            'avg_volume': overview['averageVolume'],
-            'high_today': overview['regularMarketDayHigh'],
-            'low_today': overview['regularMarketDayLow'],
-            'open_price': overview['regularMarketOpen'],
-            'volume': overview['regularMarketVolume'],
-            '52_week_high': overview['fiftyTwoWeekHigh'],
-            '52_week_low': overview['fiftyTwoWeekLow']
-        }
-        
-        return jsonify(data,tabName=tabName)
+        # ticker = yf.Ticker(symbol)
+        # overview = ticker.info
 
-    elif tabName == "#price_and_returns":
+        # print(overview)
+
+        print("Connecting to RobinHood")
+
+        symbol_data = robin_stocks.robinhood.stocks.get_fundamentals(symbol)[0]
+
+        print(symbol_data)
+
+        # robin_stocks.logout()
+
+        # robin_stocks.Robinhood().logout()
+
+        data = {
+            'about': symbol_data['description'],
+            'ceo': symbol_data['ceo'],
+            'employees': symbol_data['num_employees'],
+            'headquarters': symbol_data['headquarters_city'] + ', ' + symbol_data['headquarters_state'],
+            'founded': symbol_data['year_founded'],
+            'market_cap': symbol_data['market_cap'],
+            'pe_ratio': symbol_data['pe_ratio'],
+            # 'dividend_yield': symbol_data['dividendYield'] * 100,
+            'avg_volume': symbol_data['average_volume'],
+            'high_today': symbol_data['high'],
+            'low_today': symbol_data['low'],
+            'open_price': symbol_data['open'],
+            'volume': symbol_data['volume'],
+            '52_week_high': symbol_data['high_52_weeks'],
+            '52_week_low': symbol_data['low_52_weeks']
+        }
+
+        
+        # data = {
+        #     'about': overview['longBusinessSummary'],
+        #     'ceo': overview['ceo'],
+        #     'employees': overview['fullTimeEmployees'],
+        #     'headquarters': overview['city'] + ', ' + overview['state'],
+        #     'founded': overview['founded'],
+        #     'market_cap': overview['marketCap'],
+        #     'pe_ratio': overview['trailingPE'],
+        #     'dividend_yield': overview['dividendYield'] * 100,
+        #     'avg_volume': overview['averageVolume'],
+        #     'high_today': overview['regularMarketDayHigh'],
+        #     'low_today': overview['regularMarketDayLow'],
+        #     'open_price': overview['regularMarketOpen'],
+        #     'volume': overview['regularMarketVolume'],
+        #     '52_week_high': overview['fiftyTwoWeekHigh'],
+        #     '52_week_low': overview['fiftyTwoWeekLow']
+        # }
+        
+        # return jsonify(data,tabName=tabName)
+
+        print(data)
+        return jsonify({"data": data, "tabName": tabName})
+
+    elif tabName == "#us_price_and_returns":
         data = yf.download(selected_stock, start="2022-03-01", end="2023-03-01")
         # Compute moving averages
         data['mm10'] = data['Close'].rolling(window=10).mean()
@@ -730,7 +772,7 @@ def us_get_infobox_data():
         html_fig2 = pio.to_html(fig2, full_html=False)
 
         return jsonify(html= html_fig, stock_returns=html_fig2,tabName=tabName)
-    elif tabName == "#historic_data":
+    elif tabName == "#us_historic_data":
         # Fetch data from Yahoo Finance and remove missing values
         ticker = selected_stock
         start_date = "2022-03-03"
@@ -1011,122 +1053,61 @@ def us_get_infobox_data():
         # Return the HTML plot as a JSON object
         return jsonify(chart=html_fig,tabName=tabName)
 
-    elif tabName == "#news_data":
-        headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    elif tabName == "#us_news_data":
+        news = robin_stocks.robinhood.stocks.get_news(selected_stock)
+        print(news)
+        return jsonify({'news': news, 'tabName': tabName})
 
-        money_control_new_url = "https://www.moneycontrol.com/india/stockpricequote/refineries/relianceindustries/RI"
-
-
-        market_financials = requests.get(money_control_new_url, headers=headers).text
-
-        soup = BeautifulSoup(market_financials, 'html.parser')
-
-        data = soup.select_one('#news')
-
-        # Extract all the data from anchor tags
-        anchors = data.find_all('a')
-
-        # Create an empty list to store the data
-        final_data = []
-
-        # Loop through each anchor tag and extract the link and title
-        for a in anchors:
-            link = a.get('href')
-            title = a.get('title')
-            if title:
-                print(title)
-            else:
-                img = a.find('img')
-                if img:
-                    title = img.get('alt')
-                else:
-                    print('No title or alt text found.')
-            if link and title:
-                # Append the link and title to the data list
-                final_data.append([link, title])
-
-        money_control_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
-
-        # apply functions to headline column
-        # money_control_news_data['entities'] = money_control_news_data['Headline'].apply(lambda x: extract_entities(x))
-        # money_control_news_data['spacy_sentiment'], money_control_news_data['spacy_polarity'], money_control_news_data['spacy_pos_words'], money_control_news_data['spacy_neg_words'] = zip(*money_control_news_data['Headline'].apply(lambda x: get_sentiment(x, nlp=spacy.load("en_core_web_sm"))))
-        # money_control_news_data['nltk_sentiment'], money_control_news_data['nltk_neg'], money_control_news_data['nltk_neu'], money_control_news_data['nltk_pos'], money_control_news_data['nltk_compound'] = zip(*money_control_news_data['Headline'].apply(lambda x: get_nltk_sentiment(x)))
-        # # money_control_news_data['amazon_sentiment_scores'] = money_control_news_data['Headline'].apply(lambda x: get_amazon_sentiment_scores(x))
-        # # print(df)
-        # money_control_news_data['finbert_sentiment'] = get_finbert_sentiments(money_control_news_data['Headline'].tolist())
-
-
-        # nlp = spacy.load("en_core_web_sm")
-
-        # text = "This is a positive sentence"
-        # spacy_sentiment, sentiment, spacy_positive_words, spacy_negative_words = get_sentiment(text, nlp)
-
-        # print(spacy_sentiment)
-        # print(sentiment)
-        # print(spacy_positive_words)
-        # print(spacy_negative_words)
-
-        # text = "This is a positive sentence"
-        # sentiment = get_nltk_sentiment(text)
-        # # Convert the list of sentiment scores to a dictionary
-        # sentiment_dict = {'sentiment': sentiment[0], 'neutral': sentiment[1], 'positive': sentiment[2], 'compound': sentiment[3]}
-
-        # print(sentiment_dict)
-
-        # sentiment_scores = get_amazon_sentiment_scores(text)
-
-        # print(sentiment_scores)
-
-        # sentiment = get_finbert_sentiments(text)
-        # print(sentiment)
-
-        
-
-        economic_times_url = "https://economictimes.indiatimes.com/reliance-industries-ltd/stocks/companyid-13215.cms"
-        market_financials = requests.get(economic_times_url, headers=headers).text
-        soup = BeautifulSoup(market_financials, 'html.parser')
-        stories = soup.find_all('div', {'class': 'news_sec'})
-
-        final_data = []
-
-        for item in stories:
-            links = item.find_all('a')
-            for link in links:
-                href = link['href']
-                title = link.text.strip()
-                if '.cms' in href:
-                    print(title)
-                    final_data.append(["https://economictimes.indiatimes.com"+str(href), title])
-
-        economic_times_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
-
-
-        final_data = []
-        live_mint_new_url = "https://www.livemint.com/market/market-stats/stocks-reliance-industries-share-price-nse-bse-s0003018"
-        market_financials = requests.get(live_mint_new_url, headers=headers).text
-        soup = BeautifulSoup(market_financials, 'html.parser')
-        soup = soup.select_one('#stock_news')
-        stories = soup.find_all('div', {'class': 'headlineSec'})
-        for story in stories:
-            link = story.find('h2', {'class': 'headline'})
-        #     print(link)
-            if link is not None:
-                link = story.find('a')
-                href = link['href']
-                title = link.text.strip()
-                final_data.append(["https://www.livemint.com"+str(href), title])
-                print('Href:', href)
-                print('Title:', title)
-        live_mint_news_data = pd.DataFrame(final_data,columns = ['Link','Headline'])
-
-        news_data = {"money_control_news": money_control_news_data.to_dict(),
-                    "economic_times_news_data":economic_times_news_data.to_dict(),
-                       "live_mint_news_data":live_mint_news_data.to_dict()}
-
-        return jsonify(news_data=news_data,tabName=tabName)
     else:
         return jsonify(tabName=tabName)
+
+@app.route("/get_us_option_data", methods=['POST'])
+def get_us_option_data():
+  # get the request data as a JSON payload
+    request_data = request.json
+
+    print(request_data)
+
+    # get the query parameters
+    expiration_date = request_data['expiration_date']
+    strike_price = request_data['strike_price']
+    option_type = request_data['option_type']
+    selected_stock = request_data['selected_stock']
+
+    print(expiration_date)
+    print(strike_price)
+    print(option_type)
+    print(selected_stock)
+
+    robin_stocks.robinhood.authentication.login(username=ROBINHOOD_USERNAME,
+         password=ROBINHOOD_PASSWORD,
+         expiresIn=86400,
+         by_sms=True)
+
+    options = robin_stocks.robinhood.options.find_options_by_expiration_and_strike(selected_stock, expiration_date, strike_price, optionType=option_type)
+
+    option_data = {
+        "bid_price": options[0]["bid_price"],
+        "ask_price": options[0]["ask_price"],
+        "mark_price": options[0]["mark_price"],
+        "last_trade_price": options[0]["last_trade_price"],
+        "implied_volatility": options[0]["implied_volatility"],
+        "previous_close_price": options[0]["previous_close_price"],
+        "high_price": options[0]["high_price"],
+        "low_price": options[0]["low_price"],
+        "volume": options[0]["volume"],
+        "open_interest": options[0]["open_interest"],
+        "delta": options[0]["delta"],
+        "gamma": options[0]["gamma"],
+        "theta": options[0]["theta"],
+        "vega": options[0]["vega"],
+        "rho": options[0]["rho"]
+    }
+
+    # return the option data as JSON
+    return jsonify(option_data)
+
+
 
 @app.route('/market_analysis',methods=['GET', 'POST'])
 def market_analysis():
@@ -1164,34 +1145,62 @@ def orders_preview():
 
     final_position_data, final_open_data, final_stoploss_data, final_completed_orders, final_closed_positions = get_display_data("All", current_date, db)
 
-    # Total number of records found in Final Position Data
-    num_final_position_data = len(final_position_data.index)
+    # # Total number of records found in Final Position Data
+    # num_final_position_data = len(final_position_data.index)
 
-    # Total number of records found in Final Open Data
-    num_final_open_data = len(final_open_data.index)
+    # # Total number of records found in Final Open Data
+    # num_final_open_data = len(final_open_data.index)
 
-    # Total number of records found in Final Stoploss Data
-    num_final_stoploss_data = len(final_stoploss_data.index)
+    # # Total number of records found in Final Stoploss Data
+    # num_final_stoploss_data = len(final_stoploss_data.index)
 
     # Total number of completed orders
     num_completed_orders = len(final_completed_orders.index)
 
     print(final_completed_orders.columns)
 
-    # Total profit and loss from completed orders
-    total_completed_orders_profit_loss = final_closed_positions["pnl"].sum()
+    max_profit = 0 
+    max_loss = 0
+    weekly_pnl = 0 
+    monthly_pnl = 0
+    num_closed_positions = 0
+    total_closed_positions_profit_loss = 0 
 
-    # Total number of closed positions
-    num_closed_positions = len(final_closed_positions.index)
+    if len(final_closed_positions) > 0:
 
-    # Total profit and loss from closed positions
-    total_closed_positions_profit_loss = final_closed_positions["pnl"].sum()
+        # Total profit and loss from completed orders
+        max_profit = pd.to_numeric(final_closed_positions["pnl"]).max()
+        max_loss = pd.to_numeric(final_closed_positions["pnl"]).min()
 
-    # Average lot size of completed orders
-    avg_completed_orders_lot_size = final_completed_orders["lotsize"].mean()
+        # Total number of closed positions
+        num_closed_positions = len(final_closed_positions.index)
 
-    # Average lot size of closed positions
-    avg_closed_positions_lot_size = final_closed_positions["lotsize"].mean()
+        # Total profit and loss from closed positions
+        total_closed_positions_profit_loss = pd.to_numeric(final_closed_positions["pnl"], errors='coerce').sum()
+        print(total_closed_positions_profit_loss)
+        print(final_closed_positions.columns)
+
+        final_closed_positions['execution_date'] = pd.to_datetime(final_closed_positions['execution_date'])
+        final_closed_positions['week'] = final_closed_positions['execution_date'].apply(lambda x: x - pd.Timedelta(days=x.weekday()))
+        final_closed_positions['week'] = final_closed_positions['week'].dt.strftime('%Y-%m-%d')
+        final_closed_positions['month'] = final_closed_positions['execution_date'].dt.month
+
+        print(final_closed_positions[['execution_date','week','month']])
+
+        weekly_pnl = final_closed_positions[final_closed_positions['week'] == max(final_closed_positions['week'])]
+        monthly_pnl = final_closed_positions[final_closed_positions['month'] == max(final_closed_positions['month'])]
+
+        weekly_pnl = pd.to_numeric(weekly_pnl.groupby('week')['pnl'].apply(lambda x: x.str.replace(',', '').astype(float)), errors='coerce').sum()
+        monthly_pnl = pd.to_numeric(monthly_pnl.groupby('month')['pnl'].apply(lambda x: x.str.replace(',', '').astype(float)), errors='coerce').sum()
+
+        print(weekly_pnl)
+        print(monthly_pnl)
+
+    # # Average lot size of completed orders
+    # avg_completed_orders_lot_size = final_completed_orders["lotsize"].mean()
+
+    # # Average lot size of closed positions
+    # avg_closed_positions_lot_size = final_closed_positions["lotsize"].mean()
 
     # Total number of unique clients
     unique_clients = final_position_data["Client_id"].nunique()
@@ -1205,16 +1214,19 @@ def orders_preview():
     closed_positions_bar_chart = px.bar(closed_positions_by_symbol, x=closed_positions_by_symbol.index, y="netqty", title="Closed Positions by Trading Symbol")
 
     metrics = {
-        "num_final_position_data": num_final_position_data,
-        "num_final_open_data": num_final_open_data,
-        "num_final_stoploss_data": num_final_stoploss_data,
+        # "num_final_position_data": num_final_position_data,
+        # "num_final_open_data": num_final_open_data,
+        # "num_final_stoploss_data": num_final_stoploss_data,
         "num_completed_orders": num_completed_orders,
-        "total_completed_orders_profit_loss": total_completed_orders_profit_loss,
+        "max_profit":max_profit,
+        "max_loss":max_loss,
         "num_closed_positions": num_closed_positions,
         "total_closed_positions_profit_loss": total_closed_positions_profit_loss,
-        "avg_completed_orders_lot_size": avg_completed_orders_lot_size,
-        "avg_closed_positions_lot_size": avg_closed_positions_lot_size,
-        "unique_clients": unique_clients
+        # "avg_completed_orders_lot_size": avg_completed_orders_lot_size,
+        # "avg_closed_positions_lot_size": avg_closed_positions_lot_size,
+        "unique_clients": unique_clients,
+        "weekly_pnl":weekly_pnl,
+        "monthly_pnl":monthly_pnl
     }
     
     # visuals = {
@@ -1252,34 +1264,60 @@ def get_data():
     if client_id != "All":
         final_position_data, final_open_data, final_stoploss_data, final_completed_orders, final_closed_positions = get_display_data(client_id, date_selected, db)
 
-        # Total number of records found in Final Position Data
-        num_final_position_data = len(final_position_data.index)
+        # # Total number of records found in Final Position Data
+        # num_final_position_data = len(final_position_data.index)
 
-        # Total number of records found in Final Open Data
-        num_final_open_data = len(final_open_data.index)
+        # # Total number of records found in Final Open Data
+        # num_final_open_data = len(final_open_data.index)
 
-        # Total number of records found in Final Stoploss Data
-        num_final_stoploss_data = len(final_stoploss_data.index)
+        # # Total number of records found in Final Stoploss Data
+        # num_final_stoploss_data = len(final_stoploss_data.index)
 
         # Total number of completed orders
         num_completed_orders = len(final_completed_orders.index)
 
-        print(final_completed_orders.columns)
+        max_profit = 0 
+        max_loss = 0
+        weekly_pnl = 0 
+        monthly_pnl = 0
+        num_closed_positions = 0
+        total_closed_positions_profit_loss = 0 
 
-        # Total profit and loss from completed orders
-        total_completed_orders_profit_loss = final_closed_positions["pnl"].sum()
+        if len(final_closed_positions) > 0:
 
-        # Total number of closed positions
-        num_closed_positions = len(final_closed_positions.index)
+            # Total profit and loss from completed orders
+            max_profit = pd.to_numeric(final_closed_positions["pnl"]).max()
+            max_loss = pd.to_numeric(final_closed_positions["pnl"]).min()
 
-        # Total profit and loss from closed positions
-        total_closed_positions_profit_loss = final_closed_positions["pnl"].sum()
+            # Total number of closed positions
+            num_closed_positions = len(final_closed_positions.index)
 
-        # Average lot size of completed orders
-        avg_completed_orders_lot_size = final_completed_orders["lotsize"].mean()
+            # Total profit and loss from closed positions
+            total_closed_positions_profit_loss = pd.to_numeric(final_closed_positions["pnl"], errors='coerce').sum()
+            print(total_closed_positions_profit_loss)
+            print(final_closed_positions.columns)
 
-        # Average lot size of closed positions
-        avg_closed_positions_lot_size = final_closed_positions["lotsize"].mean()
+            final_closed_positions['execution_date'] = pd.to_datetime(final_closed_positions['execution_date'])
+            final_closed_positions['week'] = final_closed_positions['execution_date'].apply(lambda x: x - pd.Timedelta(days=x.weekday()))
+            final_closed_positions['week'] = final_closed_positions['week'].dt.strftime('%Y-%m-%d')
+            final_closed_positions['month'] = final_closed_positions['execution_date'].dt.month
+
+            print(final_closed_positions[['execution_date','week','month']])
+
+            weekly_pnl = final_closed_positions[final_closed_positions['week'] == max(final_closed_positions['week'])]
+            monthly_pnl = final_closed_positions[final_closed_positions['month'] == max(final_closed_positions['month'])]
+
+            weekly_pnl = pd.to_numeric(weekly_pnl.groupby('week')['pnl'].apply(lambda x: x.str.replace(',', '').astype(float)), errors='coerce').sum()
+            monthly_pnl = pd.to_numeric(monthly_pnl.groupby('month')['pnl'].apply(lambda x: x.str.replace(',', '').astype(float)), errors='coerce').sum()
+
+            print(weekly_pnl)
+            print(monthly_pnl)
+
+        # # Average lot size of completed orders
+        # avg_completed_orders_lot_size = final_completed_orders["lotsize"].mean()
+
+        # # Average lot size of closed positions
+        # avg_closed_positions_lot_size = final_closed_positions["lotsize"].mean()
 
         # Total number of unique clients
         unique_clients = final_position_data["Client_id"].nunique()
@@ -1294,16 +1332,14 @@ def get_data():
 
         data = {
             "metrics": {
-                "num_final_position_data": num_final_position_data,
-                "num_final_open_data": num_final_open_data,
-                "num_final_stoploss_data": num_final_stoploss_data,
-                "num_completed_orders": num_completed_orders,
-                "total_completed_orders_profit_loss": total_completed_orders_profit_loss,
-                "num_closed_positions": num_closed_positions,
-                "total_closed_positions_profit_loss": total_closed_positions_profit_loss,
-                "avg_completed_orders_lot_size": avg_completed_orders_lot_size,
-                "avg_closed_positions_lot_size": avg_closed_positions_lot_size,
-                "unique_clients": unique_clients
+                    "num_completed_orders": num_completed_orders,
+                    "max_profit":max_profit,
+                    "max_loss":max_loss,
+                    "num_closed_positions": num_closed_positions,
+                    "total_closed_positions_profit_loss": total_closed_positions_profit_loss,
+                    "unique_clients": unique_clients,
+                    "weekly_pnl":weekly_pnl,
+                    "monthly_pnl":monthly_pnl
             },
             # "visuals": {
             #     "completed_orders_bar_chart": json.dumps(completed_orders_bar_chart.to_dict()),
@@ -1631,11 +1667,11 @@ def open_interest():
     print("Expiry date")
     print(expiry_date)
 
-    # latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
-    # latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
     
-    latest_ce = ce.loc[ce['call_expirydate'] == '29-Mar-2023',]
-    latest_pe = pe.loc[pe['put_expirydate'] == '29-Mar-2023',]
+    # latest_ce = ce.loc[ce['call_expirydate'] == '29-Mar-2023',]
+    # latest_pe = pe.loc[pe['put_expirydate'] == '29-Mar-2023',]
 
     merged_data = pd.merge(latest_ce, latest_pe,left_on = ['call_strikeprice','call_expirydate'],right_on = ['put_strikeprice','put_expirydate'] , how='left')
 
@@ -1865,11 +1901,11 @@ def max_pain():
     print("Expiry date")
     print(expiry_date)
 
-    # latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
-    # latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    latest_ce = ce.loc[ce['call_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
+    latest_pe = pe.loc[pe['put_expirydate'] == expiry_date.strftime("%d-%b-%Y"),]
 
-    latest_ce = ce.loc[ce['call_expirydate'] == '29-Mar-2023',]
-    latest_pe = pe.loc[pe['put_expirydate'] == '29-Mar-2023',]
+    # latest_ce = ce.loc[ce['call_expirydate'] == '29-Mar-2023',]
+    # latest_pe = pe.loc[pe['put_expirydate'] == '29-Mar-2023',]
 
     merged_data = pd.merge(latest_ce, latest_pe,left_on = ['call_strikeprice','call_expirydate'],right_on = ['put_strikeprice','put_expirydate'] , how='left')
 
@@ -2851,12 +2887,97 @@ def get_us_candle_stick_data():
     	final_orders_raw_data['StopLoss'] = final_orders_raw_data['StopLoss'].round(2)
     	final_orders_raw_data['Target'] = final_orders_raw_data['Target'].round(2)
 
+        
+
     else:
     	final_orders_raw_data = pd.DataFrame(columns=['Strategy', 'Stock', 'Signal', 'Datetime', 'Value','buy_probability', 'sell_probability',
        'StopLoss', 'Target', 'Qty', 'expiry','Spot_Price', 'Strike_Buy_Price', 'premium_StopLoss', 'premium_Target'])
 
     print(final_orders_raw_data)
 
+    robin_stocks.robinhood.authentication.login(username=ROBINHOOD_USERNAME,
+             password=ROBINHOOD_PASSWORD,
+             expiresIn=86400,
+             by_sms=True)
+
+    #fetching from robin hood 
+    if len(final_orders_raw_data)>0:
+
+        for ind in range(0,len(final_orders_raw_data)):
+            print(final_orders_raw_data.loc[ind,'Stock'])
+            stock = final_orders_raw_data.loc[ind,'Stock']
+            last_trade_price = robin_stocks.robinhood.stocks.get_latest_price(stock)
+            price_book_data = robin_stocks.robinhood.stocks.get_pricebook_by_symbol(stock)
+            final_orders_raw_data.loc[ind,'Current_Price'] = last_trade_price
+            
+            asks_data = price_book_data['asks']
+            bids_data = price_book_data['bids']
+
+            final_orders_raw_data.loc[ind,'Current_Price'] = last_trade_price
+
+            asks_data = pd.DataFrame(asks_data)
+            asks_data['price_amount'] = asks_data['price'].apply(lambda x: x['amount'])
+            asks_data['price_amount'] = asks_data['price_amount'].astype(float)
+            asks_data.sort_values('price_amount',ascending=True)
+
+            bids_data = pd.DataFrame(bids_data)
+            bids_data['price_amount'] = bids_data['price'].apply(lambda x: x['amount'])
+            bids_data['price_amount'] = bids_data['price_amount'].astype(float)
+            bids_data.sort_values('price_amount',ascending=False)
+
+            print(bids_data[bids_data['quantity'] == max(bids_data['quantity'])])
+
+            max_bid = bids_data[bids_data['quantity'] == max(bids_data['quantity'])]
+            max_ask = asks_data[asks_data['quantity'] == max(asks_data['quantity'])]
+
+            if len(max_bid) > 0:
+                max_bid.reset_index(inplace=True,drop=True)
+                final_orders_raw_data.loc[ind, 'Max_Bid_Price'] = min(max_bid['price_amount'])
+                final_orders_raw_data.loc[ind, 'Max_Bid_Quantity'] = max_bid.loc[0,'quantity']
+
+            if len(max_ask) > 0:
+                max_ask.reset_index(inplace=True,drop=True)
+                final_orders_raw_data.loc[ind, 'Max_Ask_Price'] = min(max_ask['price_amount'])
+                final_orders_raw_data.loc[ind, 'Max_Ask_Quantity'] = max_ask.loc[0,'quantity']
+
+
+            # if not max_bid_price.empty and max_bid_price.dtype == 'float64':
+            #     max_bid_price.reset_index(inplace=True,drop=True)
+            #     final_orders_raw_data.loc[ind, 'Max_Bid_Price'] = int(max_bid_price)
+            # else:
+            #     final_orders_raw_data.loc[ind, 'Max_Bid_Price'] = 0
+
+            # max_bid_quantity = bids_data[bids_data['quantity'] == max(bids_data['quantity'])]['quantity']
+            # if not max_bid_quantity.empty and max_bid_quantity.dtype == 'float64':
+            #     max_bid_quantity.reset_index(inplace=True,drop=True)
+            #     final_orders_raw_data.loc[ind, 'Max_Bid_Quantity'] = int(max_bid_quantity)
+            # else:
+            #     final_orders_raw_data.loc[ind, 'Max_Bid_Quantity'] = 0
+
+            # max_ask_price = asks_data[asks_data['quantity'] == max(asks_data['quantity'])]['price_amount']
+            # if not max_ask_price.empty and max_ask_price.dtype == 'float64':
+            #     max_ask_price.reset_index(inplace=True,drop=True)
+            #     final_orders_raw_data.loc[ind, 'Max_Ask_Price'] = int(max_ask_price)
+            # else:
+            #     final_orders_raw_data.loc[ind, 'Max_Ask_Price'] = 0
+
+            # max_ask_quantity = asks_data[asks_data['quantity'] == max(asks_data['quantity'])]['quantity']
+            # if not max_ask_quantity.empty and max_ask_quantity.dtype == 'float64':
+            #     max_ask_quantity.reset_index(inplace=True,drop=True)
+            #     final_orders_raw_data.loc[ind, 'Max_Ask_Quantity'] = int(max_ask_quantity)
+            # else:
+            #     final_orders_raw_data.loc[ind, 'Max_Ask_Quantity'] = 0
+
+
+            # final_orders_raw_data.loc[ind,'Max_Ask_Price'] = int(asks_data[asks_data['quantity'] == max(asks_data['quantity'])]['price_amount'])
+            # final_orders_raw_data.loc[ind,'Max_Ask_Quantity'] = int(asks_data[asks_data['quantity'] == max(asks_data['quantity'])]['quantity'])
+            # final_orders_raw_data.loc[ind,'Max_Bid_Price'] = int(bids_data[bids_data['quantity'] == max(bids_data['quantity'])]['price_amount'])
+            # final_orders_raw_data.loc[ind,'Max_Bid_Quantity'] = int(bids_data[bids_data['quantity'] == max(bids_data['quantity'])]['quantity'])
+
+
+
+
+    print(final_orders_raw_data.head())
     collection = db2["us_paper_trading_orders_place"]    
     paper_trading_orders_place = collection.find({"execution_date":str(date_selected)})
     paper_trading_orders_place =  pd.DataFrame(list(paper_trading_orders_place))

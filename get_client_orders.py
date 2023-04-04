@@ -75,19 +75,19 @@ def get_display_data(client_id,date_inpt,db):
     print(final_closed_positions)
 
     if len(final_position_data) > 0:
-    	final_position_data = final_position_data[['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close']]
+    	final_position_data = final_position_data[['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close','execution_date']]
     else:
-    	final_position_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close'])
+    	final_position_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close','execution_date'])
 
     if len(final_open_data) > 0:
-    	final_open_data = final_open_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid']]
+    	final_open_data = final_open_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date']]
     else:
-    	final_open_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid'])
+    	final_open_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date'])
 
     if len(final_stoploss_data) > 0 :
-    	final_stoploss_data = final_stoploss_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid']]
+    	final_stoploss_data = final_stoploss_data[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date']]
     else:
-    	final_stoploss_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid'])
+    	final_stoploss_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date'])
 
     # if len(final_position_data) > 0:
     # 	final_position_data=final_position_data[['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close']]
@@ -95,14 +95,14 @@ def get_display_data(client_id,date_inpt,db):
     # 	final_position_data = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close'])
 
     if len(final_completed_orders) > 0:
-    	final_completed_orders = final_completed_orders[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid']]
+    	final_completed_orders = final_completed_orders[['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date']]
     else:
-    	final_completed_orders = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid'])
+    	final_completed_orders = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','price','transactiontype','quantity','lotsize','symboltoken','instrumenttype','orderid','execution_date'])
 
     if len(final_closed_positions) > 0:
-    	final_closed_positions = final_closed_positions[['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close']]
+    	final_closed_positions = final_closed_positions[['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close','execution_date']]
     else:
-    	final_closed_positions = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close'])
+    	final_closed_positions = pd.DataFrame(columns=['Client_id','tradingsymbol','producttype','netqty','lotsize','netprice','pnl','ltp','close','execution_date'])
 
     return final_position_data,final_open_data,final_stoploss_data,final_completed_orders,final_closed_positions
 

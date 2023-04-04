@@ -75,6 +75,7 @@
             <th>Signal</th>
             <th>Datetime</th>
             <th>Value</th>
+            <th>Current_Price</th>th>
             <th>Buy Probability</th>
             <th>Sell Probability</th>
             <th>Target</th>
@@ -84,6 +85,10 @@
             <th>Strike Buy Price</th>
             <th>Premium StopLoss</th>
             <th>Premium Target</th>
+            <th>Max_Ask_Price</th>
+            <th>Max_Ask_Quantity</th>
+            <th>Max_Bid_Price</th>
+            <th>Max_Bid_Quantity</th>
             <!-- <th>Action</th> -->
         </tr>
     </thead>
@@ -297,6 +302,7 @@
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Signal'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Datetime'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Value'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Current_Price'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['buy_probability'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['sell_probability'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Target'][i] + '</td>';
@@ -306,6 +312,10 @@
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Strike_Buy_Price'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['premium_StopLoss'][i] + '</td>';
                         tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['premium_Target'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Max_Ask_Price'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Max_Ask_Quantity'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Max_Bid_Price'][i] + '</td>';
+                        tableRows += '<td>' + data["paper_data"]['final_orders_raw_data']['Max_Bid_Quantity'][i] + '</td>';
                         tableRows += '</tr>';
                     }
 

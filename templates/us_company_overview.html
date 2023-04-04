@@ -71,6 +71,12 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.css"/>
 
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.4/datatables.min.js"></script>
+
+    <!-- Add the React script -->
+    <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+
+
     <style>
         /* styling for the table */
         table {
@@ -103,122 +109,66 @@
                         debugger;
                         if (data.tabName == '#us_valuation') {
 
-            //                 <div class="row">
-            //     <div class="col-md-4">
-            //         <div class="infobox text-center" id="about">
-            //             <a data-toggle="tab" href="#about_tab">
-            //                 <h4>Description</h4>
-            //                 <p>Description</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="ceo">
-            //             <a data-toggle="tab" href="#ceo_tab">
-            //                 <h4>CEO</h4>
-            //                 <p>CEO</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="employees_pe">
-            //             <a data-toggle="tab" href="#employees_tab">
-            //                 <h4>Employees</h4>
-            //                 <p>Employees</p>
-            //             </a>
-            //         </div>
-            //     </div>
-            // </div>
-            // <div class="row">
-            //     <div class="col-md-4">
-            //         <div class="infobox text-center" id="headquarters">
-            //             <a data-toggle="tab" href="#headquarters_tab">
-            //                 <h4>Head Quarters</h4>
-            //                 <p>Head Quarters</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="founded">
-            //             <a data-toggle="tab" href="#founded_tab">
-            //                 <h4>Founded</h4>
-            //                 <p>Founded</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="market_cap">
-            //             <a data-toggle="tab" href="#market_cap_tab">
-            //                 <h4>Market Cap</h4>
-            //                 <p>Market Cap</p>
-            //             </a>
-            //         </div>
-            //     </div>
-            // </div>
-            // <div class="row">
-            //     <div class="col-md-4">
-            //         <div class="infobox text-center" id="pe_ratio">
-            //             <a data-toggle="tab" href="#pe_ratio_tab">
-            //                 <h4>PE Ratio</h4>
-            //                 <p>PE Ratio</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="dividend_yield">
-            //             <a data-toggle="tab" href="#dividend_yield_tab">
-            //                 <h4>Divident Yield</h4>
-            //                 <p>Divident Yield</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="avg_volume">
-            //             <a data-toggle="tab" href="#avg_volume_tab">
-            //                 <h4>Avg Volume</h4>
-            //                 <p>Avg Volume</p>
-            //             </a>
-            //         </div>
-            //     </div>
-            // </div>
-            // <div class="row">
-            //     <div class="col-md-4">
-            //         <div class="infobox text-center" id="high_today">
-            //             <a data-toggle="tab" href="#high_today_tab">
-            //                 <h4>High Today</h4>
-            //                 <p>High Today</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="low_today">
-            //             <a data-toggle="tab" href="#low_today_tab">
-            //                 <h4>Low Today</h4>
-            //                 <p>Low Today</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="open_price">
-            //             <a data-toggle="tab" href="#open_price_tab">
-            //                 <h4>Open Price</h4>
-            //                 <p>Open Price</p>
-            //             </a>
-            //         </div>
-            //     </div>
-            // </div>
-            // <div class="row">
-            //     <div class="col-md-4">
-            //         <div class="infobox text-center" id="volume">
-            //             <a data-toggle="tab" href="#volume_tab">
-            //                 <h4>Volume</h4>
-            //                 <p>Volume</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="52_week_high">
-            //             <a data-toggle="tab" href="#52_week_high_tab">
-            //                 <h4>52 Week High</h4>
-            //                 <p>52 Week High</p>
-            //             </a>
-            //         </div>
-            //         <div class="infobox text-center" id="52_week_low">
-            //             <a data-toggle="tab" href="#52_week_low_tab">
-            //                 <h4>52 Week Low</h4>
-            //                 <p>52 Week Low</p>
-            //             </a>
-            //         </div>
-            //     </div>
-            // </div>
-
-
+                            data = {
+                                    'about': data['data']['about'],
+                                    'ceo': data['data']['ceo'],
+                                    'employees': data['data']['employees'],
+                                    'headquarters': data['data']['headquarters'],
+                                    'founded': data['data']['founded'],
+                                    'market_cap': data['data']['market_cap'],
+                                    'pe_ratio': data['data']['pe_ratio'],
+                                    'avg_volume': data['data']['avg_volume'],
+                                    'high_today': data['data']['high_today'],
+                                    'low_today': data['data']['low_today'],
+                                    'open_price': data['data']['open_price'],
+                                    'volume': data['data']['volume'],
+                                    '52_week_high': data['data']['52_week_high'],
+                                    '52_week_low': data['data']['52_week_high']
+                                }
 
 
                             $('#about').find('h4').text('About ');
-                            $('#about').find('p').text(data['data']['about']);
+                            $('#about').find('p').text(data['about']);
+
+                            $('#ceo').find('h4').text('ceo ');
+                            $('#ceo').find('p').text(data['ceo']);
+
+                            $('#employees_pe').find('h4').text('employees ');
+                            $('#employees_pe').find('p').text(data['employees']);
+
+                            $('#headquarters').find('h4').text('headquarters ');
+                            $('#headquarters').find('p').text(data['headquarters']);
+
+                            $('#founded').find('h4').text('founded ');
+                            $('#founded').find('p').text(data['founded']);
+
+                            $('#market_cap').find('h4').text('market_cap ');
+                            $('#market_cap').find('p').text(data['market_cap']);
+
+                            $('#pe_ratio').find('h4').text('pe_ratio ');
+                            $('#pe_ratio').find('p').text(data['pe_ratio']);
+
+                            $('#avg_volume').find('h4').text('avg_volume ');
+                            $('#avg_volume').find('p').text(data['avg_volume']);
+
+                            $('#high_today').find('h4').text('high_today ');
+                            $('#high_today').find('p').text(data['high_today']);
+
+                            $('#open_today').find('h4').text('open_price ');
+                            $('#open_today').find('p').text(data['open_price']);
+
+
+                            $('#low_today').find('h4').text('low_today ');
+                            $('#low_today').find('p').text(data['low_today']);
+
+                            $('#volume').find('h4').text('volume ');
+                            $('#volume').find('p').text(data['volume']);
+
+                            $('#52_week_high').find('h4').text('52_week_high ');
+                            $('#52_week_high').find('p').text(data['52_week_high']);
+
+                            $('#52_week_low').find('h4').text('52_week_low ');
+                            $('#52_week_low').find('p').text(data['52_week_low']);
 
                         }else if ( data.tabName ==  "#us_price_and_returns"){
 
@@ -242,8 +192,16 @@
                             var chart_width = $('#us_historical_signals').width();
                             var chart_height = chart_width * 0.6;
                             $('#us_historical_signals .js-plotly-plot').css('height', chart_height);
+                        }else if (data.tabName ==  "#us_news_data"){
+                            debugger;
+                            var newsData = document.getElementById('us_news_data');
+                            var newsHTML = "";
+                            for (var i = 0; i < data['news'].length; i++) {
+                                newsHTML += "<div class='news-item'><h5>" + data['news'][i].title + "</h5><p>" + data['news'][i].summary + "</p></div>";
+                            }
+                            newsData.innerHTML = newsHTML;
                         }else{
-
+                            // print(data.tabName)
                         }
                         
                     }
@@ -281,6 +239,60 @@
               dropdownList.classList.remove('show');
             });
           });
+
+
+          debugger;
+          var expirationDateInput = document.getElementById('expiration-date');
+          var strikePriceInput = document.getElementById('strike-price');
+          var optionTypeInput = document.getElementById('option-type');
+          var selectedStockInput = document.getElementById('stock_input');
+
+          var getOptionDataBtn = document.getElementById('get-option-data');
+          var optionDataDiv = document.getElementById('option-data');
+
+          // Add event listener to get-option-data button
+          getOptionDataBtn.addEventListener('click', function() {
+            // Get user input values
+            var expirationDate = expirationDateInput.value;
+            var strikePrice = strikePriceInput.value;
+            var optionType = optionTypeInput.value;
+            var selected_stock = selectedStockInput.value;
+
+            // Make AJAX request to Python server to get option data
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/get_us_option_data', true);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.onreadystatechange = function() {
+              if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                // Update UI with option data
+                var optionData = JSON.parse(xhr.responseText);
+                optionDataDiv.innerHTML = '<p>Bid: ' + optionData.bid_price + '</p>' +
+                                          '<p>Ask: ' + optionData.ask_price + '</p>' +
+                                          '<p>Mark: ' + optionData.mark_price + '</p>' +
+                                          '<p>Last Trade: ' + optionData.last_trade_price + '</p>' +
+                                          '<p>Implied Volatility: ' + optionData.implied_volatility + '</p>' +
+                                          '<p>Previous Close: ' + optionData.previous_close_price + '</p>' +
+                                          '<p>High: ' + optionData.high_price + '</p>' +
+                                          '<p>Low: ' + optionData.low_price + '</p>' +
+                                          '<p>Volume: ' + optionData.volume + '</p>' +
+                                          '<p>Open Interest: ' + optionData.open_interest + '</p>' +
+                                          '<p>Delta: ' + optionData.delta + '</p>' +
+                                          '<p>Gamma: ' + optionData.gamma + '</p>' +
+                                          '<p>Theta: ' + optionData.theta + '</p>' +
+                                          '<p>Vega: ' + optionData.vega + '</p>' +
+                                          '<p>Rho: ' + optionData.rho + '</p>';
+              }
+            };
+            xhr.send(JSON.stringify({
+              'expiration_date': expirationDate,
+              'strike_price': strikePrice,
+              'option_type': optionType,
+              'selected_stock': selected_stock
+            }));
+          });
+
+
+
         });
 
     </script>
@@ -324,7 +336,10 @@
             <a class="nav-link" id="historic-data-tab" data-toggle="tab" href="#historic_data" role="tab" aria-controls="historic_data" aria-selected="false">Historical Data</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="news-data-tab" data-toggle="tab" href="#news_data" role="tab" aria-controls="news_data" aria-selected="false">News Data</a>
+            <a class="nav-link" id="us-news-data-tab" data-toggle="tab" href="#us_news_data" role="tab" aria-controls="us_news_data" aria-selected="false">News Data</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="options-data-tab" data-toggle="tab" href="#us_options_data" role="tab" aria-controls="us_options_data" aria-selected="false">Options Data</a>
         </li>
     </ul>
 
@@ -386,12 +401,12 @@
                             <p>PE Ratio</p>
                         </a>
                     </div>
-                    <div class="infobox text-center" id="dividend_yield">
+                    <!-- <div class="infobox text-center" id="dividend_yield">
                         <a data-toggle="tab" href="#dividend_yield_tab">
                             <h4>Divident Yield</h4>
                             <p>Divident Yield</p>
                         </a>
-                    </div>
+                    </div> -->
                     <div class="infobox text-center" id="avg_volume">
                         <a data-toggle="tab" href="#avg_volume_tab">
                             <h4>Avg Volume</h4>
@@ -462,6 +477,52 @@
         <div class="tab-pane fade" id="us_historic_data" role="tabpanel" aria-labelledby="us_historic-data-tab">
             <h4 align="center">Last one year Price</h4>
             <div id="us_historical_signals"></div>
+        </div>
+        <div class="tab-pane fade" id="us_news_data" role="tabpanel" aria-labelledby="us-news-data-tab">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Title</th>
+                <th>Published At</th>
+                <th>Url</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if data|length > 0 %}
+              {% for item in data %}
+              <tr>
+                <td>{{ item.source }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.published_at }}</td>
+                <td><a href="{{ item.url }}" target="_blank">{{ item.url }}</a></td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="4" style="text-align: center;">No news found.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-pane fade" id="us_options_data" role="tabpanel" aria-labelledby="options-data-tab">
+          <br><br>
+            <label for="expiration-date">Expiration Date:</label>
+            <input type="date" id="expiration-date" name="expiration-date">
+            <br><br>
+            <label for="strike-price">Strike Price:</label>
+            <input type="number" id="strike-price" name="strike-price" step="0.01" min="0">
+            <br><br>
+            <label for="option-type">Option Type:</label>
+            <select id="option-type">
+                <option value="call">Call</option>
+                <option value="put">Put</option>
+            </select>
+            <br><br>
+            <button id="get-option-data">Get Option Data</button>
+            <br><br>
+            <div id="option-data"></div>
         </div>
     </div>
 
